@@ -2,7 +2,7 @@
 title: "Research_Paper_Code"
 author: "aaron till"
 date: "5/24/2018"
-output: html_document
+output: github_document
 ---
 
 
