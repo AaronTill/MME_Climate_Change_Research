@@ -21,8 +21,9 @@ library(rgdal)
 ```
 
 ```{r uploading and editing MME data}
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Data/')
 
-MME_raw <-read.csv("/home/aatill/Till_Thesis/Summer_Research_Work/Data/Fish Kill Data Updated 5_24_2018.csv")
+MME_raw <-read.csv("Fish Kill Data Updated 5_24_2018.csv")
 
 MME_filtered <- MME_raw %>%
   filter(Min.Kill.Size!="Excludable") %>%
@@ -33,10 +34,13 @@ MME_filtered <- MME_raw %>%
 ```
 
 ```{r uploading Thermal/NHD data and transforming Thermal}
-Thermal_Metrics <-read.csv("/home/aatill/Till_Thesis/Summer_Research_Work/Data/thermal_metrics.csv") 
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Data/')
 
 
-NHD_WBIC <-read.csv("/home/aatill/Till_Thesis/Summer_Research_Work/Data/NHD_WBIC.csv")
+Thermal_Metrics <-read.csv("thermal_metrics.csv") 
+
+
+NHD_WBIC <-read.csv("NHD_WBIC.csv")
 
 Thermal_Metrics<- merge(Thermal_Metrics, NHD_WBIC) 
 ```
@@ -128,7 +132,11 @@ main_data$Spring <- ifelse(main_data$Month == 'Mar' | main_data$Month == 'Apr' |
 ```
 
 ```{r importing spatial data}
-dsn <- "/home/aatill/Till_Thesis/Summer_Research_Work/Data/lake_shapes"
+
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Data/')
+
+
+dsn <- "lake_shapes"
 ogrListLayers(dsn)
 spatial <- readOGR(dsn, layer = 'model_lakes')
 
