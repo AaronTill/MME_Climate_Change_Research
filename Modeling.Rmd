@@ -30,20 +30,43 @@ test_data  <- slice(main_data, -train_indices)
 
 ```{r http://www.sthda.com/english/articles/36-classification-methods-essentials/149-penalized-logistic-regression-essentials-in-r-ridge-lasso-and-elastic-net/}
 
-predictors <- model.matrix(MME ~ Year + Month + WBIC + peak_temp + Mean_Surf_Temp + Max_Surf_Temp + Mean_Bot_Temp + Max_Bot_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + Mean_Bot_Zscore + Max_Bot_Zscore + Mean_Surf_Temp*qudratic_temp + layer_dif + Spring + Ice_Duration + Schmidt + Variance_After_Ice_30 + Variance_After_Ice_60 + Cumulative_Above_0 + Cumulative_Above_5 + Cumulative_Above_10 + V1 + V2, train_data) [,-1]
+x <- model.matrix(MME ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Ice_Duration + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, train_data) 
+
+y <- ifelse(train_data$MME == 1, 1, 0)
 
 ```
+
+```{r observing lambdas and making final lasso regression model}
+set.seed(1234)
+
+
+lasso_regression_lambdas <- cv.glmnet(x, y, family = "binomial", alpha = 1) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+
+lasso_regression_model <- glmnet(x, y, family = "binomial", alpha = 1, lambda = lasso_regression_lambdas$lambda.1se) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+#use lambda.1se instead of lambda.min for simpler but less accurate model
+
+#coef(lasso_regression_model)
+
+```
+
+
 
 ```{r}
 
-penalized_regression <- glmnet(predictors, train_data$MME, family = "binomial", alpha = 1, lambda = NULL) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+lasso_regression_test <- model.matrix(MME ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Ice_Duration + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, test_data)
 
-coef(penalized_regression)
+
+
+probabilities <- lasso_regression_model %>% predict(newx = lasso_regression_test)
+predicted_classes <- ifelse(probabilities > 0.5, "pos", "neg")
+# Model accuracy
+observed_classes <- test_data$MME
+mean(predicted_classes == observed_classes)
+
+
 
 ```
 
 
-
-
-
-
+Main question: Why do lambda.min and lambda.1se both give me a 0 when computing effectiveness....what does this mean?  Is this bad or good?
+ 
