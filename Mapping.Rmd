@@ -5,7 +5,9 @@ date: "4/10/2018"
 output: html_document
 ---
 
-
+```{r}
+library(ggmap)
+```
 
 ```{r}
 

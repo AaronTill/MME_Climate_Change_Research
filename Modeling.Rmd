@@ -4,27 +4,46 @@ author: "aaron till"
 date: "5/29/2018"
 output: html_document
 ---
+```{r}
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(caret)
+library(glmnet)
+
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r creating 50% random split for training/testing}
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+set.seed(1234)
 
-```{r cars}
-summary(cars)
+train_indices <- sample(1:nrow(main_data), size = 330212, replace = FALSE) #half
+train_data <- slice(main_data, train_indices) 
+test_data  <- slice(main_data, -train_indices)
+
+
+
+
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r http://www.sthda.com/english/articles/36-classification-methods-essentials/149-penalized-logistic-regression-essentials-in-r-ridge-lasso-and-elastic-net/}
+
+predictors <- model.matrix(MME ~ Year + Month + WBIC + peak_temp + Mean_Surf_Temp + Max_Surf_Temp + Mean_Bot_Temp + Max_Bot_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + Mean_Bot_Zscore + Max_Bot_Zscore + Mean_Surf_Temp*qudratic_temp + layer_dif + Spring + Ice_Duration + Schmidt + Variance_After_Ice_30 + Variance_After_Ice_60 + Cumulative_Above_0 + Cumulative_Above_5 + Cumulative_Above_10 + V1 + V2, train_data) [,-1]
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+
+penalized_regression <- glmnet(predictors, train_data$MME, family = "binomial", alpha = 1, lambda = NULL) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+
+coef(penalized_regression)
+
+```
+
+
+
+
+
+
