@@ -14,7 +14,6 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 library(lubridate)
-library(ggthemes)
 library(rgdal)
 
 ```

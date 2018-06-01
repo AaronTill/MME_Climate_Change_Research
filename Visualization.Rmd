@@ -5,33 +5,69 @@ date: "5/29/2018"
 output: html_document
 ---
 
+```{r}
+
+library(ggthemes)
+library(ggmap)
+
+
+```
+
 6 figures allowed
 
 Captions < 300 words
 
-```{r Fig:1 Boxplot of killtype mean temps}
 
-ggplot(mean_surf(combined_data_restricted), aes(y = temperature, x = as.factor(Year), fill = Cause.Category.4)) +
-  geom_histogram(stat = 'identity', position = 'dodge')
 
-#prob do a boxplot here
+# Fig:1 Boxplot of killtype mean temps
+
+```{r}
+
+mean_surf(combined_data_restricted) %>%
+  filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'May' | Month == 'Sep') %>%
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMERTIME NON-EVENT')) %>%
+  filter(Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT' | Cause.Category.4 == 'ANTHROPOGENIC CONDITION') %>%   
+ggplot(aes(y = temperature,x = Cause.Category.4)) +
+  theme_tufte() +
+  ylab('Mean Surface Temperature May - September')+
+  xlab('Category of Killtype')+
+  geom_boxplot()
+
+
+
+```
+
+# Starting spatial distribution
+
+```{r}
+
+Wisconsin_map <- get_map('Stevens Point, Wisconsin', zoom = 7, maptype = 'hybrid')
+
+ggmap(Wisconsin_map)
+
+```
+
+```{r}
+
+
+
+
+MME_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
+  geom_point(data = filter(main_data_wisconsin, MME == 1), aes(x = V1, V2))
+
+color_seperated_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
+  geom_point(data = filter(main_data_wisconsin, MME == 0), aes(x = V1, V2), fill = 'blue', shape = 21)+
+  geom_point(data = filter(main_data_wisconsin, MME == 1), aes(x = V1, V2), fill = 'red', shape = 21)
+  
+               
 
 ```
 
 
-```{Starting spatial distribution}
+
+# AV plot for Summerkills}
 
 
-
-```
-
-
-
-
-```{r AV plot for Summerkills}
-
-
-```
 
 
 ```{r AV plot for Winterkill}
@@ -53,4 +89,11 @@ ggplot(mean_surf(combined_data_restricted), aes(y = temperature, x = as.factor(Y
 ```{r final spatial probability dist.}
 
 
+shape_reg_predictions <- merge(shape_full, Reg_predictions, all = FALSE)
+
+logreg_at_risk_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
+  geom_point(data = shape_reg_predictions, aes(x = V1, V2, color = log(Prob)))
+
+
 ```
+
