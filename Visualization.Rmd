@@ -9,11 +9,48 @@ output: html_document
 
 Captions < 300 words
 
-```{r plot 1}
+```{r Fig:1 Boxplot of killtype mean temps}
 
-ggplot(mean_surf(combined_data_restricted), aes(y = peak_temp, x = Cause.Category.4)) +
-  geom_boxplot()
+ggplot(mean_surf(combined_data_restricted), aes(y = temperature, x = as.factor(Year), fill = Cause.Category.4)) +
+  geom_histogram(stat = 'identity', position = 'dodge')
 
+#prob do a boxplot here
+
+```
+
+
+```{Starting spatial distribution}
+
+
+
+```
+
+
+
+
+```{r AV plot for Summerkills}
+
+
+```
+
+
+```{r AV plot for Winterkill}
+
+
+```
+
+
+
+```{r Final projected MME by year & season (include original MME data for concurrent)}
+
+
+
+```
+
+
+
+
+```{r final spatial probability dist.}
 
 
 ```
