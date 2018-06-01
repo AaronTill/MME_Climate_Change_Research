@@ -6,11 +6,11 @@ output: html_document
 ---
 
 ```{r}
-
+library(ggplot2)
 library(ggthemes)
 library(ggmap)
-
-
+#library(gridExtra)
+#library(Scales)
 ```
 
 6 figures allowed
@@ -41,9 +41,7 @@ ggplot(aes(y = temperature,x = Cause.Category.4)) +
 
 ```{r}
 
-Wisconsin_map <- get_map('Stevens Point, Wisconsin', zoom = 7, maptype = 'hybrid')
-
-ggmap(Wisconsin_map)
+Wisconsin_map <- get_map('Stevens Point, Wisconsin', zoom = 7, maptype = 'toner-lite')
 
 ```
 
@@ -53,40 +51,48 @@ ggmap(Wisconsin_map)
 
 
 MME_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
-  geom_point(data = filter(main_data_wisconsin, MME == 1), aes(x = V1, V2))
+  geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2))
+
+
+MME_lakes_of_wisconsin_dif_categories <- ggmap(Wisconsin_map) +
+  geom_point(data = filter(main_data, MME == 1 & Summerkill == 1), aes(x = V1, V2), fill = 'red', shape = 21) +
+  geom_point(data = filter(main_data, MME == 1 & Winterkill == 1), aes(x = V1, V2), fill = 'blue', shape = 21) +
+  geom_point(data = filter(main_data, MME == 1 & Infection == 1), aes(x = V1, V2), fill = 'green', shape = 21) +
+   geom_point(data = filter(main_data, MME == 1 & Anthropogenic == 1), aes(x = V1, V2), fill = 'orange', shape = 21)
+
 
 color_seperated_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
-  geom_point(data = filter(main_data_wisconsin, MME == 0), aes(x = V1, V2), fill = 'blue', shape = 21)+
-  geom_point(data = filter(main_data_wisconsin, MME == 1), aes(x = V1, V2), fill = 'red', shape = 21)
+  geom_point(data = filter(main_data, MME == 0), aes(x = V1, V2), fill = 'blue', shape = 21)+
+  geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2), fill = 'red', shape = 21)
   
-               
+color_seperated_lakes_of_wisconsin
 
 ```
 
 
 
-# AV plot for Summerkills}
+# AV plot for Summerkills
 
 
 
 
-```{r AV plot for Winterkill}
-
-
-```
-
-
-
-```{r Final projected MME by year & season (include original MME data for concurrent)}
-
-
-
-```
+# AV plot for Winterkill
 
 
 
 
-```{r final spatial probability dist.}
+
+
+# Final projected MME by year & season (include original MME data for concurrent)}
+
+
+
+
+
+
+# final spatial probability dist.
+
+```{r}
 
 
 shape_reg_predictions <- merge(shape_full, Reg_predictions, all = FALSE)

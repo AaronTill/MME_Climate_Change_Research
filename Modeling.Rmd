@@ -5,8 +5,8 @@ date: "5/29/2018"
 output: html_document
 ---
 ```{r}
-
-library(caret)
+#library(randomForest)
+#library(caret)
 library(glmnet)
 
 ```
@@ -21,14 +21,34 @@ train_data <- slice(main_data, train_indices)
 test_data  <- slice(main_data, -train_indices)
 
 
+```
+
+```{r missclassification function}
+
+get_misclass <- function(model) {
+  y <- predict(model, newdata = test, type = "response")
+  test <- test %>%
+    mutate(p_hat = y, pred_MME = p_hat > .5)
+  table(test$MME, test$pred_MME)
+  confusion_mat <- test %>%
+    group_by(MME, pred_MME) %>%
+    tally()
+  false_pos <- confusion_mat[2, 3]
+  false_neg <- confusion_mat[3, 3]
+  total_obs <- nrow(test)
+  misclassification <- (false_pos + false_neg)/total_obs
+  misclassification
 
 
-
+}
 ```
 
 
 
-```{r http://www.sthda.com/english/articles/36-classification-methods-essentials/149-penalized-logistic-regression-essentials-in-r-ridge-lasso-and-elastic-net/}
+
+# Lasso Regression
+
+```{r source - http://www.sthda.com/english/articles/36-classification-methods-essentials/149-penalized-logistic-regression-essentials-in-r-ridge-lasso-and-elastic-net/}
 
 x <- model.matrix(MME ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Ice_Duration + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, train_data) 
 
@@ -70,3 +90,41 @@ mean(predicted_classes == observed_classes)
 
 Main question: Why do lambda.min and lambda.1se both give me a 0 when computing effectiveness....what does this mean?  Is this bad or good?
  
+ 
+# Normal Logistic Regression 
+
+
+
+```{r creating reg_predictions and quartiles}
+set.seed(1234)
+
+regression_model <- glm(MME ~ Mean_Surf_Temp + layer_dif, family = 'binomial', data=main_data) # data sample for predictions
+
+reg_predictions <- na.omit(future_data) # NEED TO MAKE STILL
+reg_predictions$Prob <- predict(regression_model, na.omit(future_data), type = 'response')
+#reg_predictions$MME <- ifelse(reg_predictions$Prob > 0.5, 1, 0) - WILL NEVER APPLY
+reg_predictions$super_risk <-ifelse(reg_predictions$Prob > 0.9, 1, 0) # REPLACE with Top Quartile
+reg_predictions$low_chance <- ifelse(reg_predictions$Prob > 0.05, 1, 0) # REPLACE with Bot Quartile
+```
+
+```{r forecasting}
+set.seed(1234)
+
+a <- Reg_predictions$Prob
+simulation_log_regress <- rbinom(length(a), 1, prob = a)
+
+Reg_predictions$MME_forecast <- simulation_log_regress
+
+```
+
+```{r looking at trend of predictions}
+
+change_MME_freq_future <- glm(MME_forecast ~ Year, family = 'binomial', data=Reg_predictions)
+
+
+summary(change_MME_freq_future) 
+
+```
+
+
+
