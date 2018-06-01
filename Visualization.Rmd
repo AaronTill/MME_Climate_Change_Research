@@ -5,3 +5,15 @@ date: "5/29/2018"
 output: html_document
 ---
 
+6 figures allowed
+
+Captions < 300 words
+
+```{r plot 1}
+
+ggplot(mean_surf(combined_data_restricted), aes(y = peak_temp, x = Cause.Category.4)) +
+  geom_boxplot()
+
+
+
+```
