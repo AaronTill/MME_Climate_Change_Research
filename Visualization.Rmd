@@ -41,7 +41,7 @@ ggplot(aes(y = temperature,x = Cause.Category.4)) +
 
 ```{r}
 
-Wisconsin_map <- get_map('Stevens Point, Wisconsin', zoom = 7, maptype = 'toner-lite')
+Wisconsin_map <- get_map('Stevens Point, Wisconsin', zoom = 7, maptype = 'toner-lite', source = 'stamen')
 
 ```
 
@@ -95,10 +95,11 @@ color_seperated_lakes_of_wisconsin
 ```{r}
 
 
-shape_reg_predictions <- merge(shape_full, Reg_predictions, all = FALSE)
+reg_predictions_spatial <- merge(shape_full, reg_predictions, all = FALSE)
 
-logreg_at_risk_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
-  geom_point(data = shape_reg_predictions, aes(x = V1, V2, color = log(Prob)))
+logreg_at_risk_lakes_of_wisconsin <- ggmap(Wisconsin_map) + 
+  geom_point(data = reg_predictions_spatial, aes(x = V1, V2, color = quantile))+
+  scale_colour_brewer(type = "div")
 
 
 ```

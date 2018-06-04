@@ -222,7 +222,7 @@ guture_gathered <- future_gathered %>% #Remove this line to compare concurrent f
 
 ```{r tidy 2}
 future_spread <- future_gathered %>%
-  mutate(type = paste(future_gathered$metric,'_', future_gathered$depth, sep = '')) %>% #MAY NEED TO ADD FUTURE_GATHERED$ for metric and depth
+  mutate(type = paste(future_gathered$metric,'_', future_gathered$depth, sep = '')) %>% 
   mutate(typeZ = paste(type, 'Z', sep = '')) %>%
   select(-metric, -depth) %>%
   distinct() %>%
@@ -235,14 +235,15 @@ future_spread <- future_gathered %>%
 
 ```{r tidying 3}
 
-future_data <- future_data_spread %>%
-  group_by(WBIC, site_id, Month, Year, peak_temp) %>% 
-  summarise(MME = max(as.numeric(MME))-1, Ice_Duration = mean(ice_duration_days, na.rm = TRUE), Schmidt = mean(schmidt_daily_annual_sum, na.rm = TRUE), Variance_After_Ice_30 = mean(coef_var_0.30, na.rm = TRUE), Variance_After_Ice_60 = mean(coef_var_30.60, na.rm = TRUE), Cumulative_Above_0 = mean(gdd_wtr_0c, na.rm = TRUE), Cumulative_Above_5 = mean(gdd_wtr_5c, na.rm = TRUE), Cumulative_Above_10 = mean(gdd_wtr_10c, na.rm = TRUE), Mean_Surf_Temp = max(mean_surf, na.rm = TRUE), Max_Surf_Temp = max(max_surf, na.rm = TRUE), Mean_Bot_Temp = max(mean_bot, na.rm = TRUE), Max_Bot_Temp = max(max_bot, na.rm = TRUE), Mean_Surf_Zscore = max(mean_surfZ, na.rm = TRUE), Max_Surf_Zscore = max(max_surfZ, na.rm = TRUE), Mean_Bot_Zscore = max(mean_botZ, na.rm = TRUE), Max_Bot_Zscore = max(max_botZ, na.rm = TRUE), Summerkill = max(Summerkill, na.rm = TRUE), Winterkill = max(winterkill, na.rm = TRUE), Infection = max(Infection, na.rm = TRUE), Anthropogenic = max(Anthropogenic, na.rm = TRUE)) %>%
+future_data <- future_spread %>%
+  group_by(WBIC, site_id, Month, year, peak_temp) %>% 
+  summarise(Ice_Duration = mean(ice_duration_days, na.rm = TRUE), Schmidt = mean(schmidt_daily_annual_sum, na.rm = TRUE), Variance_After_Ice_30 = mean(coef_var_0.30, na.rm = TRUE), Variance_After_Ice_60 = mean(coef_var_30.60, na.rm = TRUE), Cumulative_Above_0 = mean(gdd_wtr_0c, na.rm = TRUE), Cumulative_Above_5 = mean(gdd_wtr_5c, na.rm = TRUE), Cumulative_Above_10 = mean(gdd_wtr_10c, na.rm = TRUE), Mean_Surf_Temp = max(mean_surf, na.rm = TRUE), Max_Surf_Temp = max(max_surf, na.rm = TRUE), Mean_Bot_Temp = max(mean_bot, na.rm = TRUE), Max_Bot_Temp = max(max_bot, na.rm = TRUE), Mean_Surf_Zscore = max(mean_surfZ, na.rm = TRUE), Max_Surf_Zscore = max(max_surfZ, na.rm = TRUE), Mean_Bot_Zscore = max(mean_botZ, na.rm = TRUE), Max_Bot_Zscore = max(max_botZ, na.rm = TRUE)) %>%
   ungroup() 
 ```
 
 ```{r main data additional variables}
 
+future_data$Year <- future_data$year
 future_data$layer_dif <- future_data$Mean_Surf_Temp - future_data$Mean_Bot_Temp
 future_data$quadratic_temp <- future_data$Mean_Surf_Temp^2 
 future_data$Spring <- ifelse(future_data$Month == 'Mar' | future_data$Month == 'Apr' | future_data$Month == 'May', 1, 0)
