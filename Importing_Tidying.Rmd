@@ -82,10 +82,10 @@ combined_data$MME <-as.factor(ifelse(is.na(combined_data$Min.Kill.Size), 0, 1))
 
 combined_data$Date <- make_date(year=combined_data$Year, month = combined_data$Month)
 
-combined_data$Summerkill <- ifelse(combined_data$Cause.Category.4 == 'SUMMERKILL', 1, 0)
-combined_data$winterkill <- ifelse(combined_data$Cause.Category.4 == 'WINTERKILL', 1, 0)
-combined_data$Infection <- ifelse(combined_data$Cause.Category.4 == 'INFECTIOUS AGENT', 1, 0)
-combined_data$Anthropogenic <- ifelse(combined_data$Cause.Category.4 == 'ANTHROPOGENIC CONDITION', 1, 0)
+combined_data$Summerkill <- ifelse(combined_data$Cause.Category.4 == 'SUMMERKILL' & !is.na(combined_data$Cause.Category.4), 1, 0)
+combined_data$winterkill <- ifelse(combined_data$Cause.Category.4 == 'WINTERKILL' & !is.na(combined_data$Cause.Category.4), 1, 0)
+combined_data$Infection <- ifelse(combined_data$Cause.Category.4 == 'INFECTIOUS AGENT'& !is.na(combined_data$Cause.Category.4), 1, 0)
+combined_data$Anthropogenic <- ifelse(combined_data$Cause.Category.4 == 'ANTHROPOGENIC CONDITION'& !is.na(combined_data$Cause.Category.4), 1, 0)
 
 
 ```

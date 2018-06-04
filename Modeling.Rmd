@@ -50,11 +50,14 @@ get_misclass <- function(model) {
 
 ```{r source - http://www.sthda.com/english/articles/36-classification-methods-essentials/149-penalized-logistic-regression-essentials-in-r-ridge-lasso-and-elastic-net/}
 
-x <- model.matrix(MME ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Ice_Duration + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, train_data) 
+x <- model.matrix(MME ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Ice_Duration + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, V1, train_data) 
+
 
 y <- ifelse(train_data$MME == 1, 1, 0)
 
 ```
+
+
 
 ```{r observing lambdas and making final lasso regression model}
 set.seed(1234)
@@ -90,6 +93,34 @@ mean(predicted_classes == observed_classes)
 
 Main question: Why do lambda.min and lambda.1se both give me a 0 when computing effectiveness....what does this mean?  Is this bad or good?
  
+ 
+# Lasso Just Summerkill
+
+```{r source - }
+
+x_summer <- model.matrix(Summerkill ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, train_data) 
+
+
+y_summer <- ifelse(train_data$Summerkill == 1, 1, 0)
+
+```
+
+
+
+```{r observing lambdas and making final lasso regression model}
+set.seed(1234)
+
+
+lasso_regression_lambda_summer <- cv.glmnet(x_summer, y_summer, family = "binomial", alpha = 1) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+
+lasso_regression_model_summer <- glmnet(x_summer, y_summer, family = "binomial", alpha = 1, lambda = lasso_regression_lambda_summer$lambda.1se) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+#use lambda.1se instead of lambda.min for simpler but less accurate model
+
+coef(lasso_regression_model_summer)
+
+```
+
+
  
 # Normal Logistic Regression 
 
