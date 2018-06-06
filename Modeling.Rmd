@@ -122,14 +122,15 @@ coef(lasso_regression_model_summer)
 
 
  
-# Normal Logistic Regression 
+# Normal Logistic Regression for Summerkill 
 
+With variables from lasso 1se feature selection: Mean surf, cummulative above zero, V2
 
 
 ```{r creating reg_predictions and quartiles}
 set.seed(1234)
 
-regression_model <- glm(MME ~ Mean_Surf_Temp + layer_dif, family = 'binomial', data=main_data) # data sample for predictions
+regression_model <- glm(Summerkill ~ Mean_Surf_Temp + Cumulative_Above_0 + V2, family = 'binomial', data= main_data) # data sample for predictions
 
 reg_predictions <- na.omit(future_data) # NEED TO MAKE STILL
 reg_predictions$Prob <- predict(regression_model, na.omit(future_data), type = 'response')
