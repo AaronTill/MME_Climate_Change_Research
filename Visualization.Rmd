@@ -9,6 +9,7 @@ output: html_document
 library(ggplot2)
 library(ggthemes)
 library(ggmap)
+library(car)
 #library(gridExtra)
 #library(Scales)
 ```
@@ -73,20 +74,25 @@ ggplot(aes(y = temperature,x = Cause.Category.4)) +
 
 # AV plot for Summerkills 
 
-Taken from feature selection of lasso regression
+Taken from feature selection of lasso regression of summerkill in modeling.Rmd
 
+
+```{r sample}
+
+set.seed(1234)
+
+summer_sample_main_data <- merge(filter(main_data, Summerkill == 1), sample_n(filter(main_data, Summerkill == 0), size = 500), all = TRUE)
+
+logreg_summerkill <- glm(Summerkill ~ Mean_Surf_Temp + Cumulative_Above_0 + V2, family = 'binomial', data= summer_sample_main_data)
+summary(logreg_summerkill)
+
+```
 
 ```{r}
 
-logreg_summerkill <- glm(Summerkill ~ Mean_Surf_Temp + Cumulative_Above_0 + V2, family = 'binomial', data= main_data)
-summary(logreg_summerkill)
 
 
-
-log_plot_summerkill <- av.plot(logreg_summerkill, 
-  labels=names(residuals(model)[!is.na(residuals(model))]), 
-  identify.points=TRUE, las=par("las"), col=palette()[2], pch=1, lwd=2,
-  main="Added-Variable Plot", ...)
+log_plot_summerkill <- avPlot(logreg_summerkill, variable = 'Mean_Surf_Temp',xlab = 'Residuals of Mean Surface Temperature', ylab = 'Residuals of Summerkill')
 
 
 log_plot_summerkill      
@@ -98,7 +104,29 @@ log_plot_summerkill
 
 # AV plot for Winterkill
 
+Taken from lasso feature selection of winterkill only in modeling.Rmd
 
+```{r sample}
+
+set.seed(1234)
+
+winter_sample_main_data <- merge(filter(main_data, Winterkill == 1), sample_n(filter(main_data, Winterkill == 0), size = 500), all = TRUE)
+
+logreg_winterkill <- glm(Winterkill ~ Mean_Surf_Temp + Cumulative_Above_0 + V2, family = 'binomial', data= winter_sample_main_data)
+summary(logreg_winterkill)
+
+```
+
+```{r}
+
+
+
+log_plot_winterkill <- avPlot(logreg_winterkill, variable = 'Mean_Surf_Temp',xlab = 'Residuals of Mean Surface Temperature', ylab = 'Residuals of Summerkill')
+
+
+log_plot_winterkill      
+
+```
 
 
 

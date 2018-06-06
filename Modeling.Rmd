@@ -70,7 +70,7 @@ lasso_regression_model <- glmnet(x, y, family = "binomial", alpha = 1, lambda = 
 
 #coef(lasso_regression_model)
 
-```
+``` 
 
 
 
@@ -98,10 +98,10 @@ Main question: Why do lambda.min and lambda.1se both give me a 0 when computing 
 
 ```{r source - }
 
-x_summer <- model.matrix(Summerkill ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, train_data) 
+x_summer <- model.matrix(Summerkill ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, main_data) 
 
 
-y_summer <- ifelse(train_data$Summerkill == 1, 1, 0)
+y_summer <- ifelse(main_data$Summerkill == 1, 1, 0)
 
 ```
 
@@ -119,18 +119,41 @@ lasso_regression_model_summer <- glmnet(x_summer, y_summer, family = "binomial",
 coef(lasso_regression_model_summer)
 
 ```
+# Lasso Just Winterkill
 
+```{r source - }
+
+x_winter <- model.matrix(Winterkill ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, main_data) 
+
+
+y_winter <- ifelse(main_data$Winterkill == 1, 1, 0)
+
+```
+
+
+
+```{r observing lambdas and making final lasso regression model}
+set.seed(1234)
+
+
+lasso_regression_lambda_winter <- cv.glmnet(x_winter, y_winter, family = "binomial", alpha = 1) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+
+lasso_regression_model_winter <- glmnet(x_winter, y_winter, family = "binomial", alpha = 1, lambda = lasso_regression_lambda_winter$lambda.1se) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+#use lambda.1se instead of lambda.min for simpler but less accurate model
+
+coef(lasso_regression_model_winter)
+
+```
 
  
-# Normal Logistic Regression for Summerkill 
+# Normal Logistic Regression 
 
-With variables from lasso 1se feature selection: Mean surf, cummulative above zero, V2
 
 
 ```{r creating reg_predictions and quartiles}
 set.seed(1234)
 
-regression_model <- glm(Summerkill ~ Mean_Surf_Temp + Cumulative_Above_0 + V2, family = 'binomial', data= main_data) # data sample for predictions
+regression_model <- glm(MME ~ Mean_Surf_Temp + layer_dif, family = 'binomial', data=main_data) # data sample for predictions
 
 reg_predictions <- na.omit(future_data) # NEED TO MAKE STILL
 reg_predictions$Prob <- predict(regression_model, na.omit(future_data), type = 'response')
