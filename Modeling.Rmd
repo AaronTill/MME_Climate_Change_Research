@@ -119,11 +119,12 @@ lasso_regression_model_summer <- glmnet(x_summer, y_summer, family = "binomial",
 coef(lasso_regression_model_summer)
 
 ```
+
 # Lasso Just Winterkill
 
 ```{r source - }
 
-x_winter <- model.matrix(Winterkill ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, main_data) 
+x_winter <- model.matrix(Winterkill ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + Ice_Duration + V2, main_data) 
 
 
 y_winter <- ifelse(main_data$Winterkill == 1, 1, 0)
@@ -148,6 +149,9 @@ coef(lasso_regression_model_winter)
  
 # Normal Logistic Regression 
 
+Based on feature selection from lasso - is this adequate? 
+
+  Should i do just summerkill
 
 
 ```{r creating reg_predictions and quartiles}
