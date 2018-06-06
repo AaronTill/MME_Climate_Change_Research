@@ -50,7 +50,7 @@ get_misclass <- function(model) {
 
 ```{r source - http://www.sthda.com/english/articles/36-classification-methods-essentials/149-penalized-logistic-regression-essentials-in-r-ridge-lasso-and-elastic-net/}
 
-x <- model.matrix(MME ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Ice_Duration + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, V1, train_data) 
+x <- model.matrix(MME ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Ice_Duration + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, train_data) 
 
 
 y <- ifelse(train_data$MME == 1, 1, 0)
