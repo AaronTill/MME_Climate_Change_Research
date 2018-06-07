@@ -182,11 +182,11 @@ newx<- model.matrix(Summerkill ~ Year + Mean_Surf_Temp + Mean_Surf_Zscore + laye
 lasso_summer_predictions$Prob <- as.vector(predict(lasso_regression_model_summer, newx= newx, type = 'response'))
 
 
-lasso_summer_predictions$quantile <- quantile(lasso_summer_predictions$Prob,probs = c(min(lasso_summer_predictions$Prob), max(lasso_summer_predictions$Prob)), na.rm = TRUE)
+lasso_summer_predictions$quantile <- quantile(lasso_summer_predictions$Prob,probs = c(.01, 25, 75)/100, na.rm = TRUE)
 
 ```
 
-
+ c(min(lasso_summer_predictions$Prob), max(lasso_summer_predictions$Prob)
 ```{r forecasting}
 set.seed(1234)
 

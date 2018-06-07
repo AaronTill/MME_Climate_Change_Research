@@ -222,10 +222,14 @@ plot3
 ```{r}
 
 
-
+summarized_lasso_summer_predictions <- lasso_summer_predictions %>%
+  filter(Year > 2030) %>%
+  group_by(WBIC) %>%
+  summarise(Prob = mean(Prob), V1 = mean(V1), V2 = mean(V2)) 
 
 logreg_at_risk_lakes_of_wisconsin <- ggmap(Wisconsin_map) + 
-  geom_point(data = lasso_summer_predictions, aes(x = V1, V2, color = quantile))
+  geom_point(data = summarized_lasso_summer_predictions, aes(x = V1, V2, fill = Prob),shape = 21)+
+ scale_fill_gradient(low = 'Blue', high = 'Red')
 logreg_at_risk_lakes_of_wisconsin 
 
 ```
