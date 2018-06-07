@@ -11,7 +11,7 @@ library(ggthemes)
 library(ggmap)
 library(car)
 library(gridExtra)
-#library(Scales)
+library(scales)
 ```
 
 6 figures allowed
@@ -56,16 +56,28 @@ color_seperated_lakes_of_wisconsin
 
 ```{r}
 
-mean_surf(combined_data_restricted) %>%
-  filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'May' | Month == 'Sep') %>%
+boxplot1 <- mean_surf(combined_data_restricted) %>%
+  filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>%
   mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMERTIME NON-EVENT')) %>%
-  filter(Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT' | Cause.Category.4 == 'ANTHROPOGENIC CONDITION') %>%   
+  filter(Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +
-  ylab('Mean Surface Temperature May - September')+
-  xlab('Category of Killtype')+
+  ylab('Mean Surface Temperature')+
+  xlab(NULL)+
   geom_boxplot()
 
+boxplot2 <- mean_surf(combined_data_restricted) %>%
+  filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>%
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMERTIME NON-EVENT')) %>%
+  filter(Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT') %>%   
+ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
+  theme_tufte() +
+  ylab('Zscore')+
+  xlab('Category of Killtype')+
+  geom_boxplot()+
+  geom_hline(yintercept = 0, alpha = 0.3)
+
+grid.arrange(boxplot1, boxplot2)
 
 
 ```
@@ -74,28 +86,34 @@ ggplot(aes(y = temperature,x = Cause.Category.4)) +
 
 # AV plot for Summerkills 
 
-Taken from feature selection of lasso regression of summerkill in modeling.Rmd
+Taken from feature selection of lasso regression of summerkill in modeling.Rmd + Season for controlling
 
 
 ```{r sample}
 
 set.seed(1234)
 
-summer_sample_main_data <- merge(filter(main_data, Summerkill == 1), sample_n(filter(main_data, Summerkill == 0), size = 500), all = TRUE)
+summer_sample_main_data <- merge(filter(main_data, Summerkill == 1), sample_n(filter(main_data, Summerkill == 0), size = 300), all = TRUE)
 
-logreg_summerkill <- glm(Summerkill ~ Mean_Surf_Temp + Cumulative_Above_0 + V2, family = 'binomial', data= summer_sample_main_data)
+logreg_summerkill <- glm(Summerkill ~ Mean_Surf_Temp + Cumulative_Above_0 + V2 + Season, family = 'binomial', data= summer_sample_main_data)
 summary(logreg_summerkill)
 
 ```
 
 ```{r}
 
+log_plot_summerkill_mean_surf <- ggplot(filter(summer_sample_main_data, Season == 'Summer'), aes(x= Mean_Surf_Temp, y = Summerkill)) +
+  geom_jitter(alpha = 0.5, height= 0.05) +
+  geom_smooth(method = 'glm', method.args = list(family = 'binomial')) +
+  xlab('Temperature') +
+  ylab('MME') +
+  theme_tufte()
+log_plot_summerkill_mean_surf
+
+log_plot_summerkill_AV <- avPlot(logreg_summerkill, variable = 'Mean_Surf_Temp',xlab = 'Mean Surface Temperature | Others', ylab = 'Summerkill | Others')
 
 
-log_plot_summerkill <- avPlot(logreg_summerkill, variable = 'Mean_Surf_Temp',xlab = 'Residuals of Mean Surface Temperature', ylab = 'Residuals of Summerkill')
-
-
-log_plot_summerkill      
+log_plot_summerkill_AV      
 
 ```
 
@@ -110,21 +128,27 @@ Taken from lasso feature selection of winterkill only in modeling.Rmd
 
 set.seed(1234)
 
-winter_sample_main_data <- merge(filter(main_data, Winterkill == 1), sample_n(filter(main_data, Winterkill == 0), size = 500), all = TRUE)
+winter_sample_main_data <- merge(filter(main_data, Winterkill == 1), sample_n(filter(main_data, Winterkill == 0), size = 300), all = TRUE)
 
-logreg_winterkill <- glm(Winterkill ~ Mean_Surf_Temp + Cumulative_Above_0 + V2, family = 'binomial', data= winter_sample_main_data)
+logreg_winterkill <- glm(Winterkill ~ Mean_Surf_Temp + Season + V2, family = 'binomial', data= winter_sample_main_data)
 summary(logreg_winterkill)
 
 ```
 
 ```{r}
 
+log_plot_winterkill_mean_surf <- ggplot(filter(winter_sample_main_data, Season == 'Winter'), aes(x= Mean_Surf_Temp, y = Winterkill)) +
+  geom_jitter(alpha = 0.5, height= 0.05) +
+  geom_smooth(method = 'glm', method.args = list(family = 'binomial')) +
+  xlab('Temperature') +
+  ylab('MME') +
+  theme_tufte()
+log_plot_winterkill_mean_surf
+
+log_plot_winterkill_AV <- avPlot(logreg_winterkill, variable = 'Mean_Surf_Temp',xlab = 'Mean Surface Temperature | Others', ylab = 'Summerkill | Others')
 
 
-log_plot_winterkill <- avPlot(logreg_winterkill, variable = 'Mean_Surf_Temp',xlab = 'Residuals of Mean Surface Temperature', ylab = 'Residuals of Summerkill')
-
-
-log_plot_winterkill      
+log_plot_winterkill_AV      
 
 ```
 
@@ -134,39 +158,13 @@ log_plot_winterkill
 # Final projected MME by year & season (include original MME data for concurrent)}
 
 
-```{r Creating Seasons}
 
-reg_predictions$Season <- reg_predictions$Month
-main_data$Season <- main_data$Month
-
-reg_predictions$Season <- ifelse(reg_predictions$Month =='Apr'| reg_predictions$Month =='May', 'Spring', reg_predictions$Season)
-main_data$Season <- ifelse(main_data$Month =='Apr'| main_data$Month =='May', 'Spring', main_data$Season)
-
-
-reg_predictions$Season <- ifelse(reg_predictions$Month =='Mar'| reg_predictions$Month =='Dec'| reg_predictions$Month =='Jan'| reg_predictions$Month =='Feb', 'Winter', reg_predictions$Season)
-main_data$Season <- ifelse(main_data$Month =='Mar'| main_data$Month =='Dec'| main_data$Month =='Jan'| main_data$Month =='Feb', 'Winter', main_data$Season)
-
-
-reg_predictions$Season <- ifelse(reg_predictions$Month =='Sep'|reg_predictions$Month =='Jun'| reg_predictions$Month =='Jul'| reg_predictions$Month =='Aug', 'Summer', reg_predictions$Season)
-main_data$Season <- ifelse(main_data$Month =='Sep'|main_data$Month =='Jun'| main_data$Month =='Jul'| main_data$Month =='Aug', 'Summer', main_data$Season)
-
-
-reg_predictions$Season <- ifelse(reg_predictions$Month =='Oct'| reg_predictions$Month =='Nov', 'Fall', reg_predictions$Season)
-main_data$Season <- ifelse(main_data$Month =='Oct'| main_data$Month =='Nov', 'Fall', main_data$Season)
-
-
-reg_predictions$Season <-factor(reg_predictions$Season, levels=c('Summer', 'Spring', 'Winter', 'Fall'))
-main_data$Season <-factor(main_data$Season, levels=c('Summer', 'Spring', 'Winter', 'Fall'))
-
-```
-
-
-```{r Actual Plots}
+```{r}
 
 
 plot1<-main_data %>%
   filter(Summerkill == 1) %>%
-ggplot(aes(x=factor(Year), fill=Season)) + 
+ggplot(aes(x=factor(Year))) + 
   stat_count()+
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
   ylab("Actual MMEs")+
@@ -174,14 +172,14 @@ ggplot(aes(x=factor(Year), fill=Season)) +
   scale_x_discrete()+
   #guides(fill=FALSE) +
   theme_tufte()+
-  ylim(0,120) +
-  theme(axis.text.x=element_text(angle=45,hjust=1), legend.position = 'left') 
+  ylim(0,75) +
+  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
 plot1
 
-plot2<-reg+predictions %>%
-  filter(Summerkill == 1) %>%
-  filter(Year <2060) %>%
-ggplot(aes(x=factor(Year), fill=Season)) +
+plot2<-lasso_summer_predictions %>%
+  filter(Summerkill_forecast == 1) %>%
+  filter(Year <2060 & Year > 2030) %>%
+ggplot(aes(x=factor(Year))) +
   stat_count()+
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
   ylab("Forecasted MMEs")+
@@ -189,17 +187,16 @@ ggplot(aes(x=factor(Year), fill=Season)) +
   scale_x_discrete()+
   #guides(fill=FALSE) +
   theme_tufte()+
-  ylim(0,120) +
-  theme(legend = FALSE)
-  #theme(axis.text.x=element_text(angle=45,hjust=1), legend.position = 'left') 
+  ylim(0,75) +
+  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
 plot2
 
 
 
-plot3<- reg_predictions %>%
-  filter(MME == 1) %>%
+plot3<- lasso_summer_predictions %>%
+  filter(Summerkill_forecast == 1) %>%
   filter(Year >2060) %>%
-ggplot(aes(x=factor(Year), fill=Season)) +
+ggplot(aes(x=factor(Year))) +
   stat_count()+
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
   ylab(label = NULL)+
@@ -207,14 +204,13 @@ ggplot(aes(x=factor(Year), fill=Season)) +
   scale_x_discrete()+
   #guides(fill=FALSE) +
   theme_tufte()+
-  theme(axis.text.x=element_text(angle=45,hjust=1), legend.position = 'right') +
-  ylim(0,120) 
+  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'right') +
+  ylim(0,75) 
 plot3
 
 
 
-
-grid.arrange(plot1,plot2,plot3, ncol = 2)
+ grid.arrange(plot1,plot2,plot3, ncol = 3, widths = c(0.6, 1, 1))
 
 ```
 
@@ -226,12 +222,11 @@ grid.arrange(plot1,plot2,plot3, ncol = 2)
 ```{r}
 
 
-reg_predictions_spatial <- merge(shape_full, reg_predictions, all = FALSE)
+
 
 logreg_at_risk_lakes_of_wisconsin <- ggmap(Wisconsin_map) + 
-  geom_point(data = reg_predictions_spatial, aes(x = V1, V2, color = quantile))+
-  scale_colour_brewer(type = "div")
-
+  geom_point(data = lasso_summer_predictions, aes(x = V1, V2, color = quantile))
+logreg_at_risk_lakes_of_wisconsin 
 
 ```
 

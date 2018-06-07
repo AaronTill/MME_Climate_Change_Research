@@ -26,8 +26,8 @@ test_data  <- slice(main_data, -train_indices)
 ```{r missclassification function}
 
 get_misclass <- function(model) {
-  y <- predict(model, newdata = test, type = "response")
-  test <- test %>%
+  y <- predict(model, newdata = test_data, type = "response")
+  test <- test_data %>%
     mutate(p_hat = y, pred_MME = p_hat > .5)
   table(test$MME, test$pred_MME)
   confusion_mat <- test %>%
@@ -46,18 +46,18 @@ get_misclass <- function(model) {
 
 
 
-# Lasso Regression
+# Lasso Regression summerkill testing
 
 ```{r source - http://www.sthda.com/english/articles/36-classification-methods-essentials/149-penalized-logistic-regression-essentials-in-r-ridge-lasso-and-elastic-net/}
 
-x <- model.matrix(MME ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Ice_Duration + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, train_data) 
+x <- model.matrix(Summerkill ~ Year + Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Season + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, train_data) 
 
 
-y <- ifelse(train_data$MME == 1, 1, 0)
+y <- ifelse(train_data$Summerkill == 1, 1, 0)
 
 ```
 
-
+increasing lambda 
 
 ```{r observing lambdas and making final lasso regression model}
 set.seed(1234)
@@ -76,14 +76,14 @@ lasso_regression_model <- glmnet(x, y, family = "binomial", alpha = 1, lambda = 
 
 ```{r}
 
-lasso_regression_test <- model.matrix(MME ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Ice_Duration + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, test_data)
+lasso_regression_test <- model.matrix(Summerkill ~ Year + Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Season + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, test_data)
 
 
 
 probabilities <- lasso_regression_model %>% predict(newx = lasso_regression_test)
-predicted_classes <- ifelse(probabilities > 0.5, "pos", "neg")
+predicted_classes <- ifelse(probabilities > 0.5, 1, 0)
 # Model accuracy 
-observed_classes <- test_data$MME
+observed_classes <- test_data$Summerkill
 mean(predicted_classes == observed_classes)
 
 
@@ -94,11 +94,11 @@ mean(predicted_classes == observed_classes)
 Main question: Why do lambda.min and lambda.1se both give me a 0 when computing effectiveness....what does this mean?  Is this bad or good?
  
  
-# Lasso Just Summerkill
+# Lasso regression Summerkill final
 
 ```{r source - }
 
-x_summer <- model.matrix(Summerkill ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, main_data) 
+x_summer <- model.matrix(Summerkill ~ Year + Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Season + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, main_data) 
 
 
 y_summer <- ifelse(main_data$Summerkill == 1, 1, 0)
@@ -124,7 +124,7 @@ coef(lasso_regression_model_summer)
 
 ```{r source - }
 
-x_winter <- model.matrix(Winterkill ~ Year + Mean_Surf_Temp + Max_Surf_Temp + Mean_Surf_Zscore + Max_Surf_Zscore + layer_dif + Spring + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + Ice_Duration + V2, main_data) 
+x_winter <- model.matrix(Winterkill ~ Year + Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Season + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + Ice_Duration + V2, main_data) 
 
 
 y_winter <- ifelse(main_data$Winterkill == 1, 1, 0)
@@ -149,7 +149,7 @@ coef(lasso_regression_model_winter)
  
 # Normal Logistic Regression 
 
-Based on feature selection from lasso - is this adequate? 
+Based on feature selection from lasso - is this adequate? NO, scraps this eventually
 
   Should i do just summerkill
 
@@ -166,19 +166,42 @@ reg_predictions$quantile <- quantile(reg_predictions$Prob,probs = c(min(reg_pred
 
 ```
 
-```{r forecasting}
-set.seed(1234)
 
-a <- reg_predictions$Prob
-simulation_log_regress <- rbinom(length(a), 1, prob = a)
+#Building predictions dataset
 
-reg_predictions$MME_forecast <- simulation_log_regress
+```{r}
+
+lasso_summer_predictions <- future_data
+
+lasso_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
+
+newx<- model.matrix(Summerkill ~ Year + Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Season + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, lasso_summer_predictions) #why NEWX has to be a fake model and not just a dataset is unclear)
+
+
+
+lasso_summer_predictions$Prob <- as.vector(predict(lasso_regression_model_summer, newx= newx, type = 'response'))
+
+
+lasso_summer_predictions$quantile <- quantile(lasso_summer_predictions$Prob,probs = c(min(lasso_summer_predictions$Prob), max(lasso_summer_predictions$Prob)), na.rm = TRUE)
 
 ```
 
+
+```{r forecasting}
+set.seed(1234)
+
+a <- lasso_summer_predictions$Prob
+simulation_log_regress <- rbinom(length(a), 1, prob = a)
+
+lasso_summer_predictions$Summerkill_forecast <- simulation_log_regress
+
+```
+
+
+Optional:
 ```{r looking at trend of predictions}
 
-change_MME_freq_future <- glm(MME_forecast ~ Year, family = 'binomial', data=reg_predictions)
+change_MME_freq_future <- glm(Summerkill_forecast ~ Year, family = 'binomial', data=reg_predictions)
 
 
 summary(change_MME_freq_future) 

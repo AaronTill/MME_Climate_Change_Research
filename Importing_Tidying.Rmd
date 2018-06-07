@@ -155,6 +155,32 @@ main_data_no_spatial$quadratic_temp <- main_data_no_spatial$Mean_Surf_Temp^2
 main_data_no_spatial$Spring <- ifelse(main_data_no_spatial$Month == 'Mar' | main_data_no_spatial$Month == 'Apr' | main_data_no_spatial$Month == 'May', 1, 0)
 ```
 
+
+
+```{r Creating Seasons}
+
+main_data$Season <- main_data$Month
+
+main_data$Season <- ifelse(main_data$Month =='Apr'| main_data$Month =='May', 'Spring', main_data$Season)
+
+
+
+main_data$Season <- ifelse(main_data$Month =='Mar'| main_data$Month =='Dec'| main_data$Month =='Jan'| main_data$Month =='Feb', 'Winter', main_data$Season)
+
+
+main_data$Season <- ifelse(main_data$Month =='Sep'|main_data$Month =='Jun'| main_data$Month =='Jul'| main_data$Month =='Aug', 'Summer', main_data$Season)
+
+
+main_data$Season <- ifelse(main_data$Month =='Oct'| main_data$Month =='Nov', 'Fall', main_data$Season)
+
+
+main_data$Season <-factor(main_data$Season, levels=c('Summer', 'Spring', 'Winter', 'Fall'))
+
+```
+
+
+
+
 #MAPPING DATA
 
 ```{r importing spatial data}
@@ -247,4 +273,33 @@ future_data$Year <- future_data$year
 future_data$layer_dif <- future_data$Mean_Surf_Temp - future_data$Mean_Bot_Temp
 future_data$quadratic_temp <- future_data$Mean_Surf_Temp^2 
 future_data$Spring <- ifelse(future_data$Month == 'Mar' | future_data$Month == 'Apr' | future_data$Month == 'May', 1, 0)
+```
+
+
+
+```{r Creating Seasons}
+
+future_data$Season <- future_data$Month
+
+future_data$Season <- ifelse(future_data$Month =='Apr'| future_data$Month =='May', 'Spring', future_data$Season)
+
+
+
+future_data$Season <- ifelse(future_data$Month =='Mar'| future_data$Month =='Dec'| future_data$Month =='Jan'| future_data$Month =='Feb', 'Winter', future_data$Season)
+
+
+future_data$Season <- ifelse(future_data$Month =='Sep'|future_data$Month =='Jun'| future_data$Month =='Jul'| future_data$Month =='Aug', 'Summer', future_data$Season)
+
+
+future_data$Season <- ifelse(future_data$Month =='Oct'| future_data$Month =='Nov', 'Fall', future_data$Season)
+
+
+future_data$Season <-factor(future_data$Season, levels=c('Summer', 'Spring', 'Winter', 'Fall'))
+
+```
+
+```{r spatial future}
+future_data <- merge(spatial_frame, future_data, all = FALSE)
+
+
 ```
