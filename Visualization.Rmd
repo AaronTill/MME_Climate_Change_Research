@@ -55,10 +55,11 @@ color_seperated_lakes_of_wisconsin
 # bBoxplot of killtype mean temps
 
 ```{r}
+combined_data_restricted <- combined_data_restricted %>%
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMERTIME NON-EVENT')) 
 
 boxplot1 <- mean_surf(combined_data_restricted) %>%
   filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMERTIME NON-EVENT')) %>%
   filter(Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +
@@ -68,7 +69,6 @@ ggplot(aes(y = temperature,x = Cause.Category.4)) +
 
 boxplot2 <- mean_surf(combined_data_restricted) %>%
   filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMERTIME NON-EVENT')) %>%
   filter(Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
@@ -81,7 +81,22 @@ grid.arrange(boxplot1, boxplot2)
 
 
 ```
+```{r Boxplot Anova}
 
+anova_data <- mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter((Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT'))
+
+anova_cause_Type <- aov(temperature ~ Cause.Category.4, anova_data)
+summary(anova_cause_Type)
+tuk <- TukeyHSD(anova_cause_Type)
+tuk
+```
+```{r Boxplot Zscore Anova}
+anova_zscore_cause_Type <- aov(zscore_peak_temp ~ Cause.Category.4,anova_data)
+summary(anova_zscore_cause_Type)
+tuk <- TukeyHSD(anova_zscore_cause_Type)
+tuk
+
+```
 
 
 # AV plot for Summerkills 
@@ -97,6 +112,10 @@ summer_sample_main_data <- merge(filter(main_data, Summerkill == 1), sample_n(fi
 
 logreg_summerkill <- glm(Summerkill ~ Mean_Surf_Temp + Cumulative_Above_0 + V2 + Season, family = 'binomial', data= summer_sample_main_data)
 summary(logreg_summerkill)
+
+
+logreg_summerkill_one_variable <- glm(Summerkill ~ Mean_Surf_Temp, family = 'binomial', data= filter(main_data, Season == 'Summer'))
+summary(logreg_summerkill_one_variable)
 
 ```
 
@@ -132,6 +151,10 @@ winter_sample_main_data <- merge(filter(main_data, Winterkill == 1), sample_n(fi
 
 logreg_winterkill <- glm(Winterkill ~ Mean_Surf_Temp + Season + V2, family = 'binomial', data= winter_sample_main_data)
 summary(logreg_winterkill)
+
+logreg_winterkill_one_variable <- glm(Winterkill ~ Mean_Surf_Temp, family = 'binomial', data= filter(main_data, Season == 'Winter'))
+summary(logreg_winterkill_one_variable)
+
 
 ```
 
