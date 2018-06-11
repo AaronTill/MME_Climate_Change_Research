@@ -19,40 +19,9 @@ library(scales)
 Captions < 300 words
 
 
-# Starting spatial distribution
-
-```{r}
-
-Wisconsin_map <- get_map('Stevens Point, Wisconsin', zoom = 7, maptype = 'toner-lite', source = 'stamen')
-
-```
-
-```{r}
 
 
-
-
-MME_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
-  geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2))
-
-
-MME_lakes_of_wisconsin_dif_categories <- ggmap(Wisconsin_map) +
-  geom_point(data = filter(main_data, MME == 1 & Summerkill == 1), aes(x = V1, V2), fill = 'red', shape = 21) +
-  geom_point(data = filter(main_data, MME == 1 & Winterkill == 1), aes(x = V1, V2), fill = 'blue', shape = 21) +
-  geom_point(data = filter(main_data, MME == 1 & Infection == 1), aes(x = V1, V2), fill = 'green', shape = 21) +
-   geom_point(data = filter(main_data, MME == 1 & Anthropogenic == 1), aes(x = V1, V2), fill = 'orange', shape = 21)
-
-
-color_seperated_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
-  geom_point(data = filter(main_data, MME == 0), aes(x = V1, V2), fill = 'blue', shape = 21)+
-  geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2), fill = 'red', shape = 21)
-  
-color_seperated_lakes_of_wisconsin
-
-```
-
-
-# bBoxplot of killtype mean temps
+# Boxplot of killtype mean temps
 
 ```{r}
 combined_data_restricted <- combined_data_restricted %>%
@@ -240,20 +209,95 @@ plot3
 
 
 
-# final spatial probability dist.
+# spatial mappings
 
 ```{r}
 
-
-summarized_lasso_summer_predictions <- lasso_summer_predictions %>%
-  filter(Year > 2030) %>%
-  group_by(WBIC) %>%
-  summarise(Prob = mean(Prob), V1 = mean(V1), V2 = mean(V2)) 
-
-logreg_at_risk_lakes_of_wisconsin <- ggmap(Wisconsin_map) + 
-  geom_point(data = summarized_lasso_summer_predictions, aes(x = V1, V2, fill = Prob),shape = 21)+
- scale_fill_gradient(low = 'Blue', high = 'Red')
-logreg_at_risk_lakes_of_wisconsin 
+Wisconsin_map <- get_map('Stevens Point, Wisconsin', zoom = 7, maptype = 'toner-background', source = 'stamen')
+ggmap(Wisconsin_map)
 
 ```
+
+
+```{r concurrent maps}
+
+
+
+
+MME_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
+  geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2))
+
+
+MME_lakes_of_wisconsin_dif_categories <- ggmap(Wisconsin_map) +
+  geom_point(data = filter(main_data, MME == 1 & Summerkill == 1), aes(x = V1, V2), fill = 'red', shape = 21) +
+  geom_point(data = filter(main_data, MME == 1 & Winterkill == 1), aes(x = V1, V2), fill = 'blue', shape = 21) +
+  geom_point(data = filter(main_data, MME == 1 & Infection == 1), aes(x = V1, V2), fill = 'green', shape = 21) +
+   geom_point(data = filter(main_data, MME == 1 & Anthropogenic == 1), aes(x = V1, V2), fill = 'orange', shape = 21)
+
+summarized_main_data<-main_data %>%
+  group_by(WBIC) %>%
+  summarise(MME = max(Summerkill), V1 = mean(V1), V2 = mean(V2))
+
+color_seperated_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
+  geom_point(data = arrange(summarized_main_data, MME), aes(x = V1, V2, fill = MME),shape = 21)+
+  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(0, 1.54)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank())+
+  ggtitle('2004-2014')
+  #geom_point(data = filter(main_data, MME == 0), aes(x = V1, V2), fill = 'blue', shape = 21)+
+  #geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2), fill = 'red', shape = 21)
+  
+color_seperated_lakes_of_wisconsin
+
+```
+
+
+```{r future}
+
+
+summarized_lasso_summer_predictions_p2 <- lasso_summer_predictions %>%
+  filter(Year > 2030 & Year < 2070) %>%
+  group_by(WBIC) %>%
+  summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
+
+summarized_lasso_summer_predictions_p3 <- lasso_summer_predictions %>%
+  filter(Year > 2070) %>%
+  group_by(WBIC) %>%
+  summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
+
+logreg_at_risk_lakes_of_wisconsin_period_2 <- ggmap(Wisconsin_map) + 
+  geom_point(data = arrange(summarized_lasso_summer_predictions_p2, Prob), aes(x = V1, V2, fill = Prob),shape = 21)+
+ scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(0, 1.55)) +
+    theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())+
+  ggtitle('2041-2059')
+logreg_at_risk_lakes_of_wisconsin_period_2 
+
+
+logreg_at_risk_lakes_of_wisconsin_period_3 <- ggmap(Wisconsin_map) + 
+  geom_point(data = arrange(summarized_lasso_summer_predictions_p3, Prob), aes(x = V1, V2, fill = Prob),shape = 21)+
+ scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(0, 1.55)) +
+    theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())+
+  ggtitle('2081-2099')
+logreg_at_risk_lakes_of_wisconsin_period_3 
+
+
+grid.arrange(color_seperated_lakes_of_wisconsin, logreg_at_risk_lakes_of_wisconsin_period_2, logreg_at_risk_lakes_of_wisconsin_period_3, ncol = 2)
+
+```
+
+
 
