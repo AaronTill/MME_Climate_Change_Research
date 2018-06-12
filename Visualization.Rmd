@@ -12,6 +12,8 @@ library(ggmap)
 library(car)
 library(gridExtra)
 library(scales)
+library(car)
+
 ```
 
 6 figures allowed
@@ -54,13 +56,17 @@ grid.arrange(boxplot1, boxplot2)
 
 anova_data <- mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter((Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT')| Cause.Category.4 == 'ANTHROPOGENIC CONDITION')
 
+leveneTest(y =temperature ~ Cause.Category.4, data = anova_data, center = mean)
+
 anova_cause_Type <- aov(temperature ~ Cause.Category.4, anova_data)
 summary(anova_cause_Type)
 tuk <- TukeyHSD(anova_cause_Type)
 tuk
 ```
 ```{r Boxplot Zscore Anova}
-anova_zscore_cause_Type <- aov(zscore_peak_temp ~ Cause.Category.4,anova_data)
+leveneTest(y = zscore_temp, group = Cause.Category.4, data = anova_data)
+
+anova_zscore_cause_Type <- aov(zscore_temp ~ Cause.Category.4,anova_data)
 summary(anova_zscore_cause_Type)
 tuk <- TukeyHSD(anova_zscore_cause_Type)
 tuk
@@ -100,6 +106,8 @@ anova_data_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
   filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTERTIME NON-EVENT' | Cause.Category.4 == 'ANTHROPOGENIC CONDITION')    
 
+leveneTest(y =temperature ~ Cause.Category.4, data = anova_data_winter, center = mean)
+
 
 anova_cause_Type <- aov(temperature ~ Cause.Category.4, anova_data_winter)
 summary(anova_cause_Type)
@@ -107,6 +115,9 @@ tuk <- TukeyHSD(anova_cause_Type)
 tuk
 ```
 ```{r Boxplot Zscore Anova winter}
+
+leveneTest(y =temperature ~ Cause.Category.4, data = anova_data_winter, center = mean)
+
 anova_zscore_cause_Type <- aov(zscore_peak_temp ~ Cause.Category.4,anova_data_winter)
 summary(anova_zscore_cause_Type)
 tuk <- TukeyHSD(anova_zscore_cause_Type)
@@ -203,12 +214,12 @@ log_plot_winterkill_AV
 
 
 plot1<-main_data %>%
-  filter(Month == 'Jun' | Month == 'Jul' | Month == 'Aug' | Month == 'Sep') %>%
   group_by(Year) %>%
-  summarise(Summerkill = sum(Summerkill), Temp = mean(Mean_Surf_Temp) ) %>%
+  filter(Year<2014) %>%
+  summarise(Summerkill = sum(Summerkill), Temp = mean(Mean_Surf_Temp)) %>%
 ggplot(aes(x=factor(Year), y = Summerkill, fill = Temp)) + 
   geom_bar(stat ='identity')+
-  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(20, 30)) +
+  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
   ylab("Actual MMEs")+
   xlab("2004-2013") +
@@ -221,12 +232,11 @@ plot1
 
 plot2<-lasso_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%  
-  filter(Month == 'Jun' | Month == 'Jul' | Month == 'Aug' | Month == 'Sep') %>%
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
 ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   geom_bar(stat ='identity')+
-  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(20, 30)) +
+  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
   ylab("Forecasted MMEs")+
   xlab("2041-2059") +
@@ -241,12 +251,11 @@ plot2
 
 plot3<- lasso_summer_predictions %>%
   filter(Year >2060) %>%
-  filter(Month == 'Jun' | Month == 'Jul' | Month == 'Aug' | Month == 'Sep') %>%
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
 ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   geom_bar(stat ='identity')+
-  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(20, 30)) +
+  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
   ylab(label = NULL)+
   xlab("2081-2099") +
@@ -263,7 +272,42 @@ plot3
 
 ```
 
+```{r qualitative analysis}
 
+main_data %>%
+  group_by(Year) %>%
+  summarise(Summerkill = sum(Summerkill), Temp = mean(Mean_Surf_Temp)) %>%
+  arrange(desc(Summerkill))
+
+main_data %>%
+  filter(Summerkill == 1) %>%
+  summarise(mean = n()/10)
+
+
+lasso_summer_predictions %>%
+  filter(Year <2060 & Year > 2030) %>%
+  group_by(Year) %>%
+  summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp)) %>%
+  arrange(desc(Summerkill))
+
+lasso_summer_predictions %>%
+  filter(Year <2060 & Year > 2030) %>%
+  filter(Summerkill_forecast == 1) %>%
+  summarise(mean = n()/19)
+
+
+lasso_summer_predictions %>%
+  filter(Year >2060) %>%
+  group_by(Year) %>%
+  summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp)) %>%
+  arrange(desc(Summerkill))
+
+lasso_summer_predictions %>%
+  filter(Year >2060) %>%
+  filter(Summerkill_forecast == 1) %>%
+  summarise(mean = n()/19)
+
+```
 
 
 # spatial mappings
