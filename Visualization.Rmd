@@ -52,19 +52,25 @@ grid.arrange(boxplot1, boxplot2)
 
 
 ```
-```{r Boxplot Anova}
+
+```{r Summer Anova}
 
 anova_data <- mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter((Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT')| Cause.Category.4 == 'ANTHROPOGENIC CONDITION')
 
 leveneTest(y =temperature ~ Cause.Category.4, data = anova_data, center = mean)
+#cannot use ANOVA must use WELCH oneway.test
 
 anova_cause_Type <- aov(temperature ~ Cause.Category.4, anova_data)
+welch_cause_type <- oneway.test(temperature ~ Cause.Category.4, anova_data)
+print(welch_cause_type)
 summary(anova_cause_Type)
 tuk <- TukeyHSD(anova_cause_Type)
 tuk
 ```
-```{r Boxplot Zscore Anova}
-leveneTest(y = zscore_temp, group = Cause.Category.4, data = anova_data)
+```{r summer Zscore Anova}
+leveneTest(y = zscore_temp ~ Cause.Category.4, data = anova_data)
+
+
 
 anova_zscore_cause_Type <- aov(zscore_temp ~ Cause.Category.4,anova_data)
 summary(anova_zscore_cause_Type)
@@ -73,7 +79,7 @@ tuk
 
 ```
 
-```{r winterkill version}
+```{r winterkill boxplots}
 combined_data_restricted_winter <- combined_data_restricted %>%
   mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'SUMMERTIME NON-EVENT'), 'WINTERTIME NON-EVENT')) 
 
@@ -100,7 +106,7 @@ grid.arrange(boxplot1_winter, boxplot2_winter)
 
 
 ```
-```{r Boxplot Anova winter}
+```{r winterkill Anova }
 
 anova_data_winter <- mean_surf(combined_data_restricted_winter) %>%  
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
@@ -114,11 +120,12 @@ summary(anova_cause_Type)
 tuk <- TukeyHSD(anova_cause_Type)
 tuk
 ```
-```{r Boxplot Zscore Anova winter}
+```{r winter Zscore Anova }
 
-leveneTest(y =temperature ~ Cause.Category.4, data = anova_data_winter, center = mean)
 
-anova_zscore_cause_Type <- aov(zscore_peak_temp ~ Cause.Category.4,anova_data_winter)
+leveneTest(y =zscore_temp ~ Cause.Category.4, data = anova_data_winter, center = mean)
+
+anova_zscore_cause_Type <- aov(zscore_temp ~ Cause.Category.4,anova_data_winter)
 summary(anova_zscore_cause_Type)
 tuk <- TukeyHSD(anova_zscore_cause_Type)
 tuk
@@ -348,7 +355,8 @@ color_seperated_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
         axis.title.y=element_blank(),
         axis.text.y=element_blank(), 
         axis.ticks.y=element_blank())+
-  ggtitle('2004-2014')
+    guides(fill=FALSE) +
+  ggtitle('2004-2013')
   #geom_point(data = filter(main_data, MME == 0), aes(x = V1, V2), fill = 'blue', shape = 21)+
   #geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2), fill = 'red', shape = 21)
   
@@ -367,6 +375,11 @@ summarized_lasso_summer_predictions_p2 <- lasso_summer_predictions %>%
 
 summarized_lasso_summer_predictions_p3 <- lasso_summer_predictions %>%
   filter(Year > 2070) %>%
+  group_by(WBIC) %>%
+  summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
+
+summarized_lasso_summer_predictions_both <- lasso_summer_predictions %>%
+  filter(Year > 2020) %>%
   group_by(WBIC) %>%
   summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
 
@@ -393,12 +406,27 @@ logreg_at_risk_lakes_of_wisconsin_period_3 <- ggmap(Wisconsin_map) +
         axis.title.y=element_blank(),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank())+
-      guides(fill=FALSE) +
+    
   ggtitle('2081-2099 Projected')
 logreg_at_risk_lakes_of_wisconsin_period_3 
 
+logreg_at_risk_lakes_of_wisconsin_future_merge <- ggmap(Wisconsin_map) + 
+  geom_point(data = arrange(summarized_lasso_summer_predictions_both, Prob), aes(x = V1, V2, fill = Prob),shape = 21)+
+ scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(0, 2.5)) +
+    theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())+
+    
+  ggtitle('Future Projected')
+ 
 
-grid.arrange(logreg_at_risk_lakes_of_wisconsin_period_2, logreg_at_risk_lakes_of_wisconsin_period_3, color_seperated_lakes_of_wisconsin, ncol = 2, padding = 0.1)
+
+grid.arrange(color_seperated_lakes_of_wisconsin,logreg_at_risk_lakes_of_wisconsin_period_2, logreg_at_risk_lakes_of_wisconsin_period_3, ncol = 3, widths = c(1,1,1.24))
+
+grid.arrange(color_seperated_lakes_of_wisconsin, logreg_at_risk_lakes_of_wisconsin_future_merge, ncol = 2, widths = c(.9,1))
 
 ```
 
