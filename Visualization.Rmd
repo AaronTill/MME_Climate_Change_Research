@@ -13,6 +13,7 @@ library(car)
 library(gridExtra)
 library(scales)
 library(car)
+library(DescTools)
 
 ```
 
@@ -31,7 +32,7 @@ combined_data_restricted <- combined_data_restricted %>%
 
 boxplot1 <- mean_surf(combined_data_restricted) %>%
   filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>%
-  filter(Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT' | Cause.Category.4 == 'ANTHROPOGENIC CONDITION') %>%   
+  filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +
   ylab('Mean Surface Temperature')+
@@ -40,7 +41,7 @@ ggplot(aes(y = temperature,x = Cause.Category.4)) +
 
 boxplot2 <- mean_surf(combined_data_restricted) %>%
   filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>%
-  filter(Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT'| Cause.Category.4 == 'ANTHROPOGENIC CONDITION') %>%   
+  filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
   ylab('Zscore')+
@@ -55,9 +56,11 @@ grid.arrange(boxplot1, boxplot2)
 
 ```{r Summer Anova}
 
-anova_data <- mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter((Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT')| Cause.Category.4 == 'ANTHROPOGENIC CONDITION')
+anova_data <- mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter((Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMERTIME NON-EVENT'))
 
-leveneTest(y =temperature ~ Cause.Category.4, data = anova_data, center = mean)
+
+
+leveneTest(y = temperature ~ Cause.Category.4, data = anova_data2, center = mean)
 #cannot use ANOVA must use WELCH oneway.test
 
 anova_cause_Type <- aov(temperature ~ Cause.Category.4, anova_data)
@@ -66,6 +69,8 @@ print(welch_cause_type)
 summary(anova_cause_Type)
 tuk <- TukeyHSD(anova_cause_Type)
 tuk
+
+DunnettTest(temperature ~ Cause.Category.4, data = anova_data)
 ```
 ```{r summer Zscore Anova}
 leveneTest(y = zscore_temp ~ Cause.Category.4, data = anova_data)
@@ -77,6 +82,12 @@ summary(anova_zscore_cause_Type)
 tuk <- TukeyHSD(anova_zscore_cause_Type)
 tuk
 
+ttest_data <- filter(anova_data, Cause.Category.4 == 'Summerkill')
+
+
+
+t.test(ttest_data$zscore_temp, mu = 0)
+
 ```
 
 ```{r winterkill boxplots}
@@ -85,16 +96,16 @@ combined_data_restricted_winter <- combined_data_restricted %>%
 
 boxplot1_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTERTIME NON-EVENT' | Cause.Category.4 == 'ANTHROPOGENIC CONDITION') %>%   
+  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTERTIME NON-EVENT') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +
-  ylab('Mean Surface Temperature')+
+  ylab(NULL)+
   xlab(NULL)+
   geom_boxplot()
 
 boxplot2_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTERTIME NON-EVENT' | Cause.Category.4 == 'ANTHROPOGENIC CONDITION') %>%   
+  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTERTIME NON-EVENT') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
   ylab('Zscore')+
@@ -103,6 +114,32 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   geom_hline(yintercept = 0, alpha = 0.3)
 
 grid.arrange(boxplot1_winter, boxplot2_winter)
+
+```
+
+```{r ultimate boxplots}
+
+combined_data_restricted_ultimate <- combined_data_restricted %>%
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'NON-EVENT')) 
+
+combined_data_restricted_ultimate$Cause.Category.4 <- factor(combined_data_restricted_ultimate$Cause.Category.4, levels = c('SUMMERKILL', 'NON-EVENT', 'WINTERKILL', 'INFECTIOUS AGENT', 'ANTHROPOGENIC CONDITION'))
+
+ultimate_zscore_boxplot <- mean_surf(combined_data_restricted_ultimate) %>%
+  filter(Cause.Category.4 != 'UNKNOWN') %>%
+ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
+  theme_tufte() +
+  ylab('Zscore')+
+  xlab('Category of Killtype')+
+  geom_boxplot() +
+  geom_hline(yintercept = 0, alpha = 0.3)
+
+
+x <- grid.arrange(boxplot1,boxplot1_winter,  ncol = 2)
+
+grid.arrange(x, ultimate_zscore_boxplot)
+
+ttest_winter <- filter(combined_data_restricted_ultimate, Cause.Category.4 == 'WINTERKILL' & Season == 'Winter')
+t.test(ttest_winter$zscore_temp, mu = 0) # There are a lot of cold lakes without winterkills....
 
 
 ```
