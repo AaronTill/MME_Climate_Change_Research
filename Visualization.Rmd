@@ -138,9 +138,10 @@ x <- grid.arrange(boxplot1,boxplot1_winter,  ncol = 2)
 
 grid.arrange(x, ultimate_zscore_boxplot)
 
-ttest_winter <- filter(combined_data_restricted_ultimate, Cause.Category.4 == 'WINTERKILL' & Season == 'Winter')
-t.test(ttest_winter$zscore_temp, mu = 0) # There are a lot of cold lakes without winterkills....
+ttest_winter <- filter(combined_data_restricted_ultimate, Cause.Category.4 == 'ANTHROPOGENIC CONDITION' )
+t.test(ttest_winter$zscore_temp, mu = 0) # There are a lot of cold lakes without winterkills...
 
+#scale of significance, anthropogenic and winterkill restricted both significant but much less so, problem with test
 
 ```
 ```{r winterkill Anova }
@@ -358,7 +359,8 @@ lasso_summer_predictions %>%
 
 ```{r}
 
-Wisconsin_map <- get_map('Stevens Point, Wisconsin', zoom = 7, maptype = 'toner-background', source = 'stamen')
+bbox =c(-93, 42.4, -87, 46.9) 
+Wisconsin_map <- get_map(bbox, zoom = 7, maptype = 'toner-background', source = 'stamen')
 ggmap(Wisconsin_map)
 
 ```
@@ -386,12 +388,12 @@ summarized_main_data<-main_data %>%
 color_seperated_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
   geom_point(data = arrange(summarized_main_data, MME), aes(x = V1, V2, fill = MME),shape = 21)+
   scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(0, 1.54)) +
-  theme(axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank(),
-        axis.title.y=element_blank(),
-        axis.text.y=element_blank(), 
-        axis.ticks.y=element_blank())+
+  #theme(axis.title.x=element_blank(),
+        #axis.text.x=element_blank(),
+        #axis.ticks.x=element_blank(),
+        #axis.title.y=element_blank(),
+        #axis.text.y=element_blank(), 
+        #axis.ticks.y=element_blank())+
     guides(fill=FALSE) +
   ggtitle('2004-2013')
   #geom_point(data = filter(main_data, MME == 0), aes(x = V1, V2), fill = 'blue', shape = 21)+
@@ -447,23 +449,12 @@ logreg_at_risk_lakes_of_wisconsin_period_3 <- ggmap(Wisconsin_map) +
   ggtitle('2081-2099 Projected')
 logreg_at_risk_lakes_of_wisconsin_period_3 
 
-logreg_at_risk_lakes_of_wisconsin_future_merge <- ggmap(Wisconsin_map) + 
-  geom_point(data = arrange(summarized_lasso_summer_predictions_both, Prob), aes(x = V1, V2, fill = Prob),shape = 21)+
- scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(0, 2.5)) +
-    theme(axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank(),
-        axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())+
-    
-  ggtitle('Future Projected')
+
  
 
 
 grid.arrange(color_seperated_lakes_of_wisconsin,logreg_at_risk_lakes_of_wisconsin_period_2, logreg_at_risk_lakes_of_wisconsin_period_3, ncol = 3, widths = c(1,1,1.24))
 
-grid.arrange(color_seperated_lakes_of_wisconsin, logreg_at_risk_lakes_of_wisconsin_future_merge, ncol = 2, widths = c(.9,1))
 
 ```
 
