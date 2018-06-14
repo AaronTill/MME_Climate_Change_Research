@@ -30,25 +30,30 @@ Captions < 300 words
 combined_data_restricted <- combined_data_restricted %>%
   mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMER NON-EVENT')) 
 
+combined_data_restricted$sig <- ifelse(combined_data_restricted$Cause.Category.4 == 'SUMMERKILL', 'p < 0.05', 'p > 0.05')
+combined_data_restricted$sig <- factor(combined_data_restricted$sig, levels = c('p > 0.05', 'p < 0.05'))
+
 boxplot1 <- mean_surf(combined_data_restricted) %>%
   filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>%
   filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMER NON-EVENT' | Cause.Category.4 == 'INFECTIOUS AGENT') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
-  theme_tufte() +
-  ylab('Mean Surface Temperature')+
+  theme_tufte() +  
+  ylab(NULL)+
   xlab(NULL)+
-  geom_boxplot()
+  geom_boxplot(aes(fill = sig)) + 
+  scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'ANOVA'))
 
 boxplot2 <- mean_surf(combined_data_restricted) %>%
   filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>%
   filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMER NON-EVENT') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
-  ylab('Zscore')+
+  ylab(NULL) +
   xlab('Category of Killtype')+
-  geom_boxplot() +
+  geom_boxplot(aes(fill = sig)) +
   xlab(NULL) +
-  geom_hline(yintercept = 0, alpha = 0.3)
+  geom_hline(yintercept = 0, alpha = 0.5)+ 
+  scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'T-test'))
 
 grid.arrange(boxplot1, boxplot2)
 
@@ -101,21 +106,26 @@ boxplot1_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +
-  ylab(NULL)+
+  ylab('Mean Surface Temperature')+
   xlab(NULL)+
-  geom_boxplot()
+  geom_boxplot(aes(fill = sig))+ 
+  guides(fill = FALSE)+ 
+  scale_fill_manual(values = c('grey', 'gold'))
 
 boxplot2_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
   filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
-  ylab(NULL)+
   xlab('Category of Killtype')+
-  geom_boxplot() +
+  geom_boxplot(aes(fill = sig)) +
   xlab(NULL) +
+  ylab('Zscore')+
   ylim(-2.5,2) +
-  geom_hline(yintercept = 0, alpha = 0.3)
+  geom_hline(yintercept = 0, alpha = 0.5)+
+  scale_fill_brewer()+ 
+  guides(fill = FALSE)+ 
+  scale_fill_manual(values = c('grey', 'gold'))
 
 grid.arrange(boxplot1_winter, boxplot2_winter)
 
@@ -171,8 +181,8 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   geom_hline(yintercept = 0, alpha = 0.3)
 
 
-xbox <- grid.arrange(boxplot1,boxplot1_winter,  ncol = 2, widths = c(1, 0.7))
-ybox <- grid.arrange(boxplot2,  boxplot2_winter, ncol = 2, widths = c(1,0.7))
+xbox <- grid.arrange(boxplot1_winter, boxplot1,  ncol = 2, widths = c(0.57, 1.0))
+ybox <- grid.arrange(boxplot2_winter,boxplot2, ncol = 2, widths = c(0.57, 1.0))
 
 grid.arrange(xbox, ybox)
 
