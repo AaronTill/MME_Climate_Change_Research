@@ -41,10 +41,10 @@ ggplot(aes(y = temperature,x = Cause.Category.4)) +
 
 boxplot2 <- mean_surf(combined_data_restricted) %>%
   filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>%
-  filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'INFECTIOUS AGENT') %>%   
+  filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMER NON-EVENT') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
-  ylab('Zscore Summer')+
+  ylab('Zscore')+
   xlab('Category of Killtype')+
   geom_boxplot() +
   xlab(NULL) +
@@ -84,12 +84,15 @@ t.test(ttest_data_summerkill$zscore_temp, mu = 0)
 ttest_data_infectious_summer<- filter(anova_data, Cause.Category.4 == 'INFECTIOUS AGENT')
 t.test(ttest_data_infectious_summer$zscore_temp, mu = 0)
 
-ttest_data_infectious<- filter(mean_surf(combined_data_restricted), Cause.Category.4 == 'INFECTIOUS AGENT')
+ttest_data_infectious<- filter(mean_surf(anova_data), Cause.Category.4 == 'SUMMER NON-EVENT')
 t.test(ttest_data_infectious$zscore_temp, mu = 0)
 
 ```
 
 ```{r winterkill boxplots}
+combined_data_restricted <- combined_data_restricted %>%
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMER NON-EVENT'))
+
 combined_data_restricted_winter <- combined_data_restricted %>%
   mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'SUMMER NON-EVENT'), 'WINTER NON-EVENT')) 
 
@@ -104,13 +107,14 @@ ggplot(aes(y = temperature,x = Cause.Category.4)) +
 
 boxplot2_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL') %>%   
+  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
-  ylab('Zscore Winter')+
+  ylab(NULL)+
   xlab('Category of Killtype')+
   geom_boxplot() +
   xlab(NULL) +
+  ylim(-2.5,2) +
   geom_hline(yintercept = 0, alpha = 0.3)
 
 grid.arrange(boxplot1_winter, boxplot2_winter)
@@ -145,7 +149,7 @@ tuk
 ttest_data_winter<- filter(anova_data_winter, Cause.Category.4 == 'WINTERKILL')
 t.test(ttest_data_winter$zscore_temp, mu = 0)
 
-ttest_data_winter_all<- filter(mean_surf(combined_data_restricted), Cause.Category.4 == 'WINTERKILL')
+ttest_data_winter_all<- filter(mean_surf(anova_data_winter), Cause.Category.4 == 'WINTER NON-EVENT')
 t.test(ttest_data_winter_all$zscore_temp, mu = 0)
 
 
@@ -168,7 +172,7 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
 
 
 xbox <- grid.arrange(boxplot1,boxplot1_winter,  ncol = 2, widths = c(1, 0.7))
-ybox <- grid.arrange(boxplot2,ultimate_zscore_boxplot,  boxplot2_winter, ncol = 3, widths = c(1,1, 0.6 ))
+ybox <- grid.arrange(boxplot2,  boxplot2_winter, ncol = 2, widths = c(1,0.7))
 
 grid.arrange(xbox, ybox)
 
@@ -297,7 +301,7 @@ lasso_summer_predictions %>%
 ```{r}
 
 bbox =c(-93, 42.4, -87, 46.9) 
-Wisconsin_map <- get_map(bbox, zoom = 7, maptype = 'watercolor', source = 'stamen')
+Wisconsin_map <- get_map(bbox, zoom = 7, maptype = 'toner-lines')
 ggmap(Wisconsin_map)
 
 ```
