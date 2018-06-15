@@ -216,7 +216,7 @@ Lake_Risk_Assesment <- lasso_summer_predictions %>% select(WBIC, site_id, Year, 
   group_by(WBIC, site_id, Year) %>%
   summarise('Summerkill Probability' = sum(Prob), 'Mean Surface Temperature' = mean(Mean_Surf_Temp))
 
-> write.csv(Lake_Risk_Assesment, "Lake_Risk_Assessment.csv")
+write.csv(Lake_Risk_Assesment, "Lake_Risk_Assessment.csv")
 
 ```
 
