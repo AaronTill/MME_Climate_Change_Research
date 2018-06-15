@@ -208,5 +208,15 @@ summary(change_MME_freq_future)
 
 ```
 
+```{r user data}
 
+
+Lake_Risk_Assesment <- lasso_summer_predictions %>% select(WBIC, site_id, Year, Prob, Mean_Surf_Temp) %>%
+  filter(Year > 2020) %>%
+  group_by(WBIC, site_id, Year) %>%
+  summarise('Summerkill Probability' = sum(Prob), 'Mean Surface Temperature' = mean(Mean_Surf_Temp))
+
+> write.csv(Lake_Risk_Assesment, "Lake_Risk_Assessment.csv")
+
+```
 
