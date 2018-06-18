@@ -1,0 +1,77 @@
+---
+title: "Supplementary Information"
+author: "aaron till"
+date: "6/18/2018"
+output: html_document
+---
+
+```{r Infectious Agent Yearly Test}
+
+combined_data_restricted$sig_all <- ifelse(combined_data_restricted$Cause.Category.4 == 'WINTERKILL', 'p<.05', 'p>.05')
+combined_data_restricted$sig_all <- factor(combined_data_restricted$sig_all, levels = c('p>.05', 'p<.05'))
+
+ultimate_zscore_boxplot <- mean_surf(combined_data_restricted) %>%
+  filter(Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'ANTHROPOGENIC CONDITION' ) %>%
+ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
+  theme_tufte() +
+  ylab('Zscore All Seasons')+
+  xlab('Category of Killtype')+
+  xlab(NULL) +
+  geom_hline(yintercept = 0, alpha = 0.5) + 
+  geom_boxplot(aes(fill = sig_all)) + 
+  scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'T-test'))
+
+ultimate_zscore_boxplot
+
+```
+
+```{r MME distribution}
+
+main_data$Month = factor(main_data$Month, levels=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", 'Oct', "Nov", "Dec"))  
+
+plot1<-ggplot(filter(main_data, MME ==1),aes(x=factor(Year), fill=Month)) +
+  stat_count()+
+  #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
+  ylab("")+
+  xlab("Year") +
+  ggtitle("Number Of Events Per Year")+              #Peak Temperatures Per Year")+
+  scale_x_discrete()+
+  #guides(fill=FALSE) +
+  theme_tufte()
+  #scale_fill_brewer(palette = 'matlab.like', direction = -1)
+plot1
+
+#number of events per month
+
+plot1.1<-ggplot(filter(main_data, MME == 1),aes(x=Month, fill=Month)) +
+  stat_count()+
+  xlab("Month")+
+  ylab("")+
+  ggtitle("Number Of Events Per Month")+
+  scale_x_discrete() +
+  guides(fill=FALSE) +
+  theme_tufte()
+  #scale_fill_brewer()
+plot1.1
+
+grid.arrange(plot1, plot1.1)
+
+
+
+
+```
+
+```{r}
+
+main_data %>%
+  filter(MME == 1) %>%
+  group_by(WBIC) %>%
+  summarise(n = n()) %>%
+ggplot(aes(x = n)) +
+  geom_bar() +
+  ylab('Number of Lakes')+
+  xlab('Number of Events') +
+  theme_tufte()
+
+
+```

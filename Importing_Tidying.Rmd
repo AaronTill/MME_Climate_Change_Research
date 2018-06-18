@@ -157,29 +157,6 @@ main_data_no_spatial$Spring <- ifelse(main_data_no_spatial$Month == 'Mar' | main
 
 
 
-```{r Creating Seasons}
-
-main_data$Season <- main_data$Month
-
-main_data$Season <- ifelse(main_data$Month =='Apr'| main_data$Month =='May', 'Spring', main_data$Season)
-
-
-
-main_data$Season <- ifelse(main_data$Month =='Mar'| main_data$Month =='Dec'| main_data$Month =='Jan'| main_data$Month =='Feb', 'Winter', main_data$Season)
-
-
-main_data$Season <- ifelse(main_data$Month =='Sep'|main_data$Month =='Jun'| main_data$Month =='Jul'| main_data$Month =='Aug', 'Summer', main_data$Season)
-
-
-main_data$Season <- ifelse(main_data$Month =='Oct'| main_data$Month =='Nov', 'Fall', main_data$Season)
-
-
-main_data$Season <-factor(main_data$Season, levels=c('Summer', 'Spring', 'Winter', 'Fall'))
-
-```
-
-
-
 
 #MAPPING DATA
 
@@ -203,6 +180,29 @@ spatial_frame <- cbind(as.data.frame(spatial), as.data.frame(coordinates(spatial
 ```{r Merging with main data}
 
 main_data <- merge(spatial_frame, main_data_no_spatial, all = FALSE)
+
+```
+
+
+
+```{r Creating Seasons}
+
+main_data$Season <- main_data$Month
+
+main_data$Season <- ifelse(main_data$Month =='Apr'| main_data$Month =='May', 'Spring', main_data$Season)
+
+
+
+main_data$Season <- ifelse(main_data$Month =='Mar'| main_data$Month =='Dec'| main_data$Month =='Jan'| main_data$Month =='Feb', 'Winter', main_data$Season)
+
+
+main_data$Season <- ifelse(main_data$Month =='Sep'|main_data$Month =='Jun'| main_data$Month =='Jul'| main_data$Month =='Aug', 'Summer', main_data$Season)
+
+
+main_data$Season <- ifelse(main_data$Month =='Oct'| main_data$Month =='Nov', 'Fall', main_data$Season)
+
+
+main_data$Season <-factor(main_data$Season, levels=c('Summer', 'Spring', 'Winter', 'Fall'))
 
 ```
 
