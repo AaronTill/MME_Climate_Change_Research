@@ -302,7 +302,8 @@ lasso_summer_predictions %>%
 
 bbox =c(-93, 42.4, -87, 46.9) 
 Wisconsin_map <- get_map(bbox, zoom = 7, maptype = 'toner-background')
-ggmap(Wisconsin_map, darken = c(0,'black'))
+ggmap(Wisconsin_map, darken = c(0,'black')) 
+ # geom_path(data = spatial_w, )
 
 ```
 
