@@ -412,5 +412,7 @@ grid.arrange(color_seperated_lakes_of_wisconsin,logreg_at_risk_lakes_of_wisconsi
 
 ```
 
+https://rstudio.reed.edu/s/208caf3c63252c331037f/graphics/plot_zoom_png?width=771&height=291
+
 
 
