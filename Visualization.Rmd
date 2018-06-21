@@ -207,8 +207,8 @@ ggplot(aes(x=factor(Year), y = Summerkill, fill = Temp)) +
   geom_bar(stat ='identity')+
   scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
-  ylab("Actual MMEs")+
-  xlab("2004-2013") +
+  ylab("Actual Summerkills")+
+  xlab(NULL) +
   scale_x_discrete()+
   guides(fill=FALSE) +
   theme_tufte()+
@@ -224,8 +224,8 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   geom_bar(stat ='identity')+
   scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
-  ylab("Forecasted MMEs")+
-  xlab("2041-2059") +
+  ylab("Forecasted Summerkills")+
+  xlab(NULL) +
   scale_x_discrete()+
   guides(fill=FALSE) +
   theme_tufte()+
@@ -244,7 +244,7 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
   ylab(label = NULL)+
-  xlab("2081-2099") +
+  xlab(NULL) +
   scale_x_discrete()+
   #guides(fill=FALSE) +
   theme_tufte()+
@@ -301,22 +301,29 @@ lasso_summer_predictions %>%
 ```{r}
 
 bbox =c(-93, 42.4, -87, 46.9) 
-Wisconsin_map <- get_map(bbox, zoom = 7, maptype = 'toner-background')
+Wisconsin_map <- get_map(bbox, zoom = 7, maptype = 'toner-lines')
 ggmap(Wisconsin_map, darken = c(0,'black')) 
- # geom_path(data = spatial_w, )
 
 ```
 
 
 ```{r concurrent maps}
 
-
+map_data_w <- merge(as.data.frame(spatial_w), as.data.frame(coordinates(spatial_w)))
 
 
 MME_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
-  geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2))
+  geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2)) +
+  #geom_polygon(data = map_data_w, aes(x = V1, y = V2)) +
+  geom_path(data = map_data_w, aes(x = V1, y = V2))# +
+  #coord_equal()
+  #geom_point(data = as.data.frame(coordinates(spatial_w)), aes(x = V1, V2))
 
+MME_lakes_of_wisconsin
 
+```
+
+```{r}
 MME_lakes_of_wisconsin_dif_categories <- ggmap(Wisconsin_map) +
   geom_point(data = filter(main_data, MME == 1 & Summerkill == 1), aes(x = V1, V2), fill = 'red', shape = 21) +
   geom_point(data = filter(main_data, MME == 1 & Winterkill == 1), aes(x = V1, V2), fill = 'blue', shape = 21) +

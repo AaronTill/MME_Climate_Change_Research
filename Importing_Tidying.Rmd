@@ -30,6 +30,9 @@ MME_filtered <- MME_raw %>%
 
 ```
 
+
+
+
 ```{r uploading Thermal/NHD data and transforming Thermal}
 setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Data/')
 
@@ -217,9 +220,9 @@ main_data$Season <-factor(main_data$Season, levels=c('Summer', 'Spring', 'Winter
 setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Data/')
 
 
-dsn2 <- "wisconsin_shape"
+dsn2 <- "wisconsin_only_shape"
 ogrListLayers(dsn2)
-spatial_w <- readOGR(dsn2, layer = 'cb_2017_us_state_500k')
+spatial_w <- readOGR(dsn2, layer = 'wisco_only')
 
 ```
 
