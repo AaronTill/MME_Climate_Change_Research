@@ -224,6 +224,8 @@ dsn2 <- "wisconsin_only_shape"
 ogrListLayers(dsn2)
 spatial_w <- readOGR(dsn2, layer = 'wisco_only')
 
+map_data_w <-fortify(spatial_w) 
+
 ```
 
 ```{r making data frames from spatial data}

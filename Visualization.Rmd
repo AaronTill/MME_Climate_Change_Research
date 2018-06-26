@@ -317,26 +317,33 @@ lasso_summer_predictions %>%
 
 ```{r}
 
-bbox =c(-93, 42.4, -87, 46.9) 
+bbox =c(-92.9, 42.4, -87, 46.9) 
 Wisconsin_map <- get_map(bbox, zoom = 7, maptype = 'toner-lines')
-ggmap(Wisconsin_map, darken = c(0,'black')) 
+ggmap(Wisconsin_map, darken = c(0,'black')) + 
+    geom_path(data = map_data_w, aes(x = long, y = lat, group = group))# +
+
 
 ```
 
 
 ```{r concurrent maps}
 
-map_data_w <- merge(as.data.frame(spatial_w), as.data.frame(coordinates(spatial_w)))
+plot(spatial_w)
+
+
+  #merge(as.data.frame(spatial_w), as.data.frame(coordinates(spatial_w)))
 
 
 MME_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
-  geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2)) +
+  geom_point(data = filter(main_data, MME == 1), aes(x = V1, y = V2)) +
   #geom_polygon(data = map_data_w, aes(x = V1, y = V2)) +
-  geom_path(data = map_data_w, aes(x = V1, y = V2))# +
+  geom_path(data = map_data_w, aes(x = long, y = lat, group = group))# +
   #coord_equal()
   #geom_point(data = as.data.frame(coordinates(spatial_w)), aes(x = V1, V2))
 
+
 MME_lakes_of_wisconsin
+
 
 ```
 
@@ -362,6 +369,7 @@ color_seperated_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
         #axis.ticks.y=element_blank()
         )+
     guides(fill=FALSE, alpha = FALSE) +
+  geom_path(data = map_data_w, aes(x = long, y = lat, group = group))+
   ggtitle('2004-2013')
   #geom_point(data = filter(main_data, MME == 0), aes(x = V1, V2), fill = 'blue', shape = 21)+
   #geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2), fill = 'red', shape = 21)
@@ -399,6 +407,7 @@ logreg_at_risk_lakes_of_wisconsin_period_2 <- ggmap(Wisconsin_map) +
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank())+
   guides(fill=FALSE, alpha = FALSE) +
+  geom_path(data = map_data_w, aes(x = long, y = lat, group = group)) +
   ggtitle('2041-2059 Projected')
 logreg_at_risk_lakes_of_wisconsin_period_2 
 
@@ -416,11 +425,14 @@ logreg_at_risk_lakes_of_wisconsin_period_3 <- ggmap(Wisconsin_map) +
         legend.text= element_text(size = 5),
         legend.title = element_text(size = 10))+
   guides(alpha = FALSE) +
+  geom_path(data = map_data_w, aes(x = long, y = lat, group = group))+
   ggtitle('2081-2099 Projected')
 logreg_at_risk_lakes_of_wisconsin_period_3 
 
 
 ```
+
+
 ```{r}
 
 
@@ -429,10 +441,4 @@ grid.arrange(color_seperated_lakes_of_wisconsin,logreg_at_risk_lakes_of_wisconsi
 
 ```
 
-https://rstudio.reed.edu/s/208caf3c63252c331037f/graphics/plot_zoom_png?width=771&height=291
 
-
-```{r}
-write.csv(main_data, 'main_data.csv')
-
-```
