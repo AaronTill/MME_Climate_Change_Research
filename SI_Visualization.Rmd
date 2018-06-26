@@ -40,23 +40,22 @@ t.test(ttest_data_all$zscore_temp, mu = 0)
 ```{r ice duration winterkill}
 
 combined_data_restricted <- combined_data_restricted %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMER NO-EVENT'))
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMER NON-EVENT'))
 
 combined_data_restricted_winter <- combined_data_restricted %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'SUMMER NO-EVENT'), 'WINTER NO-EVENT')) 
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'SUMMER NON-EVENT'), 'WINTER NON-EVENT')) 
 
 combined_data_restricted_winter$sig_ice <- ifelse(combined_data_restricted_winter$Cause.Category.4 == 'WINTERKILL', 'p<.05', 'p>.05')
 combined_data_restricted_winter$sig_ice <- factor(combined_data_restricted_winter$sig_ice, levels = c('p>.05', 'p<.05'))
 
 ice_duration_boxplot <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Jan' | Month == 'Feb' | Month == 'Dec' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NO-EVENT' ) %>%
+  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT' ) %>%
 ggplot(aes(y = ice_duration_days,x = Cause.Category.4)) +
   theme_tufte() +
   ylab('Ice Duration (Days)')+
   xlab('Category of Killtype')+
   xlab(NULL) +
-  geom_hline(yintercept = 0, alpha = 0.5) + 
   geom_boxplot(aes(fill = sig_ice)) + 
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'ANOVA'))
 
@@ -64,7 +63,7 @@ ice_duration_boxplot
 
 ice_anova_data <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Jan' | Month == 'Feb' | Month == 'Dec' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NO-EVENT')
+  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT')
 
 anova_ice <- aov(ice_duration_days ~ Cause.Category.4, ice_anova_data)
 summary(anova_ice)
@@ -73,7 +72,7 @@ tuk
 ```
 
 ```
-FIX THIS ^ and add test stats for above 2
+
 ```{r MME distribution}
 
 main_data$Month = factor(main_data$Month, levels=c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", 'Oct', "Nov", "Dec"))  

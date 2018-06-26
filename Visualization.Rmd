@@ -28,24 +28,25 @@ Captions < 300 words
 
 ```{r}
 combined_data_restricted <- combined_data_restricted %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMER NO-EVENT')) 
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMER NON-EVENT')) 
 
 combined_data_restricted$sig <- ifelse(combined_data_restricted$Cause.Category.4 == 'SUMMERKILL', 'p<.05', 'p>.05')
 combined_data_restricted$sig <- factor(combined_data_restricted$sig, levels = c('p>.05', 'p<.05'))
 
 boxplot1 <- mean_surf(combined_data_restricted) %>%
   filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>%
-  filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMER NO-EVENT' | Cause.Category.4 == 'INFECTIOUS AGENT') %>%   
+  filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMER NON-EVENT' | Cause.Category.4 == 'INFECTIOUS AGENT') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +  
   ylab(NULL)+
   xlab(NULL)+
   geom_boxplot(aes(fill = sig)) + 
+  ggtitle('B') +
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'ANOVA'))
 
 boxplot2 <- mean_surf(combined_data_restricted) %>%
   filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>%
-  filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMER NO-EVENT') %>%   
+  filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMER NON-EVENT') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
   ylab(NULL) +
@@ -53,6 +54,7 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   geom_boxplot(aes(fill = sig)) +
   xlab(NULL) +
   geom_hline(yintercept = 0, alpha = 0.5)+ 
+  ggtitle('D') +
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'T-test'))
 
 grid.arrange(boxplot1, boxplot2)
@@ -62,7 +64,9 @@ grid.arrange(boxplot1, boxplot2)
 
 ```{r Summer Anova}
 
-anova_data <- mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter((Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMER NO-EVENT'))
+#make sure to run combined_dat_restricted and the above chunk before this or error will occure, not sure why
+
+anova_data <- mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter((Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMER NON-EVENT'))
 
 
 
@@ -72,7 +76,7 @@ leveneTest(y = temperature ~ Cause.Category.4, data = anova_data, center = mean)
 welch_cause_type <- oneway.test(temperature ~ Cause.Category.4, anova_data)
 print(welch_cause_type)
 
-DunnettTest(temperature ~ factor(Cause.Category.4), data = anova_data, control = 'SUMMER NO-EVENT')
+DunnettTest(temperature ~ factor(Cause.Category.4), data = anova_data, control = 'SUMMER NON-EVENT')
 ```
 ```{r summer Zscore Anova}
 #leveneTest(y = zscore_temp ~ Cause.Category.4, data = anova_data)
@@ -89,32 +93,36 @@ t.test(ttest_data_summerkill$zscore_temp, mu = 0)
 ttest_data_infectious_summer<- filter(anova_data, Cause.Category.4 == 'INFECTIOUS AGENT')
 t.test(ttest_data_infectious_summer$zscore_temp, mu = 0)
 
-ttest_data_infectious<- filter(mean_surf(anova_data), Cause.Category.4 == 'SUMMER NO-EVENT')
-t.test(ttest_data_infectious$zscore_temp, mu = 0)
+ttest_data_summer_nonevent<- filter(mean_surf(anova_data), Cause.Category.4 == 'SUMMER NON-EVENT')
+t.test(ttest_data_summer_nonevent$zscore_temp, mu = 0)
+
+#number of above 0 zscore for summerkill
+mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter(Cause.Category.4 == 'SUMMERKILL') %>% group_by(zscore_temp > 0) %>% summarise(n())
 
 ```
 
 ```{r winterkill boxplots}
 combined_data_restricted <- combined_data_restricted %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMER NO-EVENT'))
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMER NON-EVENT'))
 
 combined_data_restricted_winter <- combined_data_restricted %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'SUMMER NO-EVENT'), 'WINTER NO-EVENT')) 
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'SUMMER NON-EVENT'), 'WINTER NON-EVENT')) 
 
 boxplot1_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NO-EVENT') %>%   
+  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +
   ylab('Mean Surface Temperature')+
   xlab(NULL)+
   geom_boxplot(aes(fill = sig))+ 
   guides(fill = FALSE)+ 
+  ggtitle('A') +
   scale_fill_manual(values = c('grey', 'gold'))
 
 boxplot2_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NO-EVENT') %>%   
+  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
   xlab('Category of Killtype')+
@@ -125,6 +133,7 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   geom_hline(yintercept = 0, alpha = 0.5)+
   scale_fill_brewer()+ 
   guides(fill = FALSE)+ 
+  ggtitle('C') +
   scale_fill_manual(values = c('grey', 'gold'))
 
 grid.arrange(boxplot1_winter, boxplot2_winter)
@@ -135,7 +144,7 @@ grid.arrange(boxplot1_winter, boxplot2_winter)
 
 anova_data_winter <- mean_surf(combined_data_restricted_winter) %>%  
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NO-EVENT')    
+  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT')    
 
 leveneTest(y =temperature ~ Cause.Category.4, data = anova_data_winter, center = mean)
 
@@ -159,7 +168,7 @@ tuk
 ttest_data_winter<- filter(anova_data_winter, Cause.Category.4 == 'WINTERKILL')
 t.test(ttest_data_winter$zscore_temp, mu = 0)
 
-ttest_data_winter_all<- filter(mean_surf(anova_data_winter), Cause.Category.4 == 'WINTER NO-EVENT')
+ttest_data_winter_all<- filter(mean_surf(anova_data_winter), Cause.Category.4 == 'WINTER NON-EVENT')
 t.test(ttest_data_winter_all$zscore_temp, mu = 0)
 
 
@@ -180,7 +189,6 @@ grid.arrange(xbox, ybox)
 ttest_winter <- filter(combined_data_restricted, Cause.Category.4 == 'ANTHROPOGENIC CONDITION' )
 t.test(ttest_winter$zscore_temp, mu = 0) # There are a lot of cold lakes without winterkills...
 
-#scale of significance, anthropogenic and winterkill restricted both significant but much less so, problem with test
 
 ```
 
@@ -267,7 +275,10 @@ main_data %>%
 
 main_data %>%
   filter(Summerkill == 1) %>%
-  summarise(mean = n()/10)
+  group_by(Year) %>%
+  summarise(n = n()) %>%
+  arrange(n)
+  #mean = n() / 10
 
 
 lasso_summer_predictions %>%
@@ -279,7 +290,10 @@ lasso_summer_predictions %>%
 lasso_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%
   filter(Summerkill_forecast == 1) %>%
-  summarise(mean = n()/19)
+  group_by(Year) %>%
+  summarise(n = n())%>%
+  arrange(n)
+    #mean = n()/19
 
 
 lasso_summer_predictions %>%
@@ -291,7 +305,10 @@ lasso_summer_predictions %>%
 lasso_summer_predictions %>%
   filter(Year >2060) %>%
   filter(Summerkill_forecast == 1) %>%
-  summarise(mean = n()/19)
+  group_by(Year) %>%
+  summarise(n = n()) %>%
+  arrange(n)
+    #mean = n()/19
 
 ```
 
@@ -415,4 +432,7 @@ grid.arrange(color_seperated_lakes_of_wisconsin,logreg_at_risk_lakes_of_wisconsi
 https://rstudio.reed.edu/s/208caf3c63252c331037f/graphics/plot_zoom_png?width=771&height=291
 
 
+```{r}
+write.csv(main_data, 'main_data.csv')
 
+```
