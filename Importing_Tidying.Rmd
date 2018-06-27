@@ -14,6 +14,7 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 library(lubridate)
+library(fuzzyjoin)
 
 ```
 
@@ -211,9 +212,9 @@ main_data$Season <-factor(main_data$Season, levels=c('Summer', 'Spring', 'Winter
 
 
 
-# Outline of wisconsin shapefil data
+# Outline of wisconsin shapefile data
 
-#MAPPING DATA
+
 
 ```{r importing spatial data}
 
@@ -240,6 +241,45 @@ map_data_w <-fortify(spatial_w)
 plot(spatial_w)
 ```
 
+# Wisconsin Population Data from 2010 census data blocks
+
+https://www.census.gov/geo/maps-data/data/tiger-data.html
+
+```{r importing spatial data}
+
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Data/')
+
+
+dsn3 <- "census_data"
+ogrListLayers(dsn3)
+
+census_w <- readOGR(dsn3, layer = 'tabblock2010_55_pophu')
+```
+
+```{r}
+census_w_coords <-  as.data.frame(coordinates(census_w))
+census_w_pop <- select(as.data.frame(census_w), 'POP10')
+census_w_frame <- cbind(census_w_pop, census_w_coords)
+
+```
+
+```{r}
+ggmap(Wisconsin_map) +
+  geom_point(census_w_frame, aes(x = V1, y = V2))
+
+```
+
+```{r}
+
+fuzz <- function(x, y) {
+  ifelse(abs(x-y)>= 0.1, FALSE, TRUE)
+}
+
+
+main_data_census <- fuzzy_left_join(main_data,census_w_frame, by = c('V1', 'V1'), match_fun = fuzz)
+#list(x = c('V1', 'V1'), y = c('V2', 'V2'))
+
+```
 
 # Future Data
 
