@@ -381,3 +381,11 @@ future_data <- merge(spatial_frame, future_data, all = FALSE)
 
 ```
 
+
+```{r future coordinate rounding and merging with census data}
+
+future_data$long_round <- round(future_data$V1, 1)
+future_data$lat_round <- round(future_data$V2, 1)
+
+future_data_census <- merge(future_data, census_w_frame_summary, full = TRUE) 
+```
