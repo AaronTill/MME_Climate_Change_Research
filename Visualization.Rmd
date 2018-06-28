@@ -317,6 +317,8 @@ lasso_summer_predictions %>%
 
 ```{r}
 
+map_data_w <-fortify(spatial_w) 
+
 bbox =c(-92.9, 42.4, -87, 46.9) 
 Wisconsin_map <- get_map(bbox, zoom = 7, maptype = 'toner-lines')
 ggmap(Wisconsin_map, darken = c(0,'black')) + 
