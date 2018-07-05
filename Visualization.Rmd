@@ -206,6 +206,7 @@ t.test(ttest_winter$zscore_temp, mu = 0) # There are a lot of cold lakes without
 
 ```{r}
 
+# RIDGE ! !
 
 plot1<-main_data %>%
   group_by(Year) %>%
@@ -220,11 +221,11 @@ ggplot(aes(x=factor(Year), y = Summerkill, fill = Temp)) +
   scale_x_discrete()+
   guides(fill=FALSE) +
   theme_tufte()+
-  ylim(0,75) +
+  ylim(0,1500) +
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
 plot1
 
-plot2<-lasso_summer_predictions %>%
+plot2<-ridge_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%  
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
@@ -237,13 +238,13 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   scale_x_discrete()+
   guides(fill=FALSE) +
   theme_tufte()+
-  ylim(0,75) +
+  ylim(0,1500) +
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
 plot2
 
 
 
-plot3<- lasso_summer_predictions %>%
+plot3<- ridge_summer_predictions %>%
   filter(Year >2060) %>%
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
@@ -257,7 +258,7 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   #guides(fill=FALSE) +
   theme_tufte()+
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'right') +
-  ylim(0,75) 
+  ylim(0,1500) 
 plot3
 
 
@@ -361,16 +362,16 @@ summarized_main_data<-main_data %>%
   summarise(MME = max(Summerkill), V1 = mean(V1), V2 = mean(V2))
 
 color_seperated_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
-  geom_point(data = arrange(summarized_main_data, MME), aes(x = V1, V2, fill = MME, alpha = MME),shape = 21, size = 1)+
-  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(0, 1)) +
+  geom_point(data = arrange(summarized_main_data, MME), aes(x = V1, V2, color = MME, alpha = MME), size = 1)+
+  scale_color_gradient(low = 'Blue', high = 'Red', limits = c(0, 1)) +
   theme(axis.title.x=element_blank(),
         #axis.text.x=element_blank(),
         #axis.ticks.x=element_blank(),
-        axis.title.y=element_blank(),
+        axis.title.y=element_blank()
         #axis.text.y=element_blank(), 
         #axis.ticks.y=element_blank()
-        )+
-    guides(fill=FALSE, alpha = FALSE) +
+        ) +
+    guides(color=FALSE, alpha = FALSE) +
   geom_path(data = map_data_w, aes(x = long, y = lat, group = group))+
   ggtitle('2004-2013')
   #geom_point(data = filter(main_data, MME == 0), aes(x = V1, V2), fill = 'blue', shape = 21)+
@@ -383,13 +384,14 @@ color_seperated_lakes_of_wisconsin
 
 ```{r future}
 
+# RIDGE ! !
 
-summarized_lasso_summer_predictions_p2 <- lasso_summer_predictions %>%
+summarized_lasso_summer_predictions_p2 <- ridge_summer_predictions %>%
   filter(Year > 2030 & Year < 2070) %>%
   group_by(WBIC) %>%
   summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
 
-summarized_lasso_summer_predictions_p3 <- lasso_summer_predictions %>%
+summarized_lasso_summer_predictions_p3 <- ridge_summer_predictions %>%
   filter(Year > 2070) %>%
   group_by(WBIC) %>%
   summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
@@ -400,23 +402,23 @@ summarized_lasso_summer_predictions_both <- lasso_summer_predictions %>%
   summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
 
 logreg_at_risk_lakes_of_wisconsin_period_2 <- ggmap(Wisconsin_map) + 
-  geom_point(data = arrange(summarized_lasso_summer_predictions_p2, Prob), aes(x = V1, V2, fill = Prob, alpha = Prob),shape = 21, size = 1)+
-  scale_fill_gradient(low = 'Blue', high = 'Red',na.value = 'red', limits = c(0, 1)) +
+  geom_point(data = arrange(summarized_lasso_summer_predictions_p2, Prob), aes(x = V1, V2, color = Prob, alpha = Prob), size = 1)+
+  scale_color_gradient(low = 'Blue', high = 'Red',na.value = 'red', limits = c(0, 1)) +
     theme(axis.title.x=element_blank(),
         #axis.text.x=element_blank(),
         #axis.ticks.x=element_blank(),
         axis.title.y=element_blank(),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank())+
-  guides(fill=FALSE, alpha = FALSE) +
+  guides(color=FALSE, alpha = FALSE) +
   geom_path(data = map_data_w, aes(x = long, y = lat, group = group)) +
   ggtitle('2041-2059 Projected')
 logreg_at_risk_lakes_of_wisconsin_period_2 
 
 
 logreg_at_risk_lakes_of_wisconsin_period_3 <- ggmap(Wisconsin_map) + 
-  geom_point(data = arrange(summarized_lasso_summer_predictions_p3, Prob), aes(x = V1, V2, fill = Prob, alpha = Prob),shape = 21, size = 1)+
- scale_fill_gradient(low = 'Blue', high = 'Red', na.value = 'Red', limits = c(0, 1)) +
+  geom_point(data = arrange(summarized_lasso_summer_predictions_p3, Prob), aes(x = V1, V2, color = Prob, alpha = Prob),size = 1)+
+ scale_color_gradient(low = 'Blue', high = 'Red', na.value = 'Red', limits = c(0, 1)) +
     theme(axis.title.x=element_blank(),
         #axis.text.x=element_blank(),
         #axis.ticks.x=element_blank(),
