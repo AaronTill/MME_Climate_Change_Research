@@ -252,11 +252,11 @@ census_w_frame <- cbind(census_w_pop, census_w_coords)
 
 ```
 
-```{r}
+``{r}
 ggmap(Wisconsin_map) +
   geom_point(census_w_frame, aes(x = V1, y = V2))
 
-```
+``
 
 
 ```{r limiting size of coordinates}
