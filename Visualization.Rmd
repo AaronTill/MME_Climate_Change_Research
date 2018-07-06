@@ -225,7 +225,7 @@ ggplot(aes(x=factor(Year), y = Summerkill, fill = Temp)) +
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
 plot1
 
-plot2<-ridge_summer_predictions %>%
+plot2<-lasso_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%  
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
@@ -244,7 +244,7 @@ plot2
 
 
 
-plot3<- ridge_summer_predictions %>%
+plot3<- lasso_summer_predictions %>%
   filter(Year >2060) %>%
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%

@@ -225,6 +225,7 @@ simulation_log_regress <- rbinom(length(a), 1, prob = a)
 
 ridge_summer_predictions$Summerkill_forecast <- simulation_log_regress
 
+
 ```
 
 #Optional:
