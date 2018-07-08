@@ -6,7 +6,7 @@ output: html_document
 ---
 ```{r}
 #library(randomForest)
-#library(caret)
+library(caret)
 library(glmnet)
 
 ```
@@ -16,9 +16,9 @@ library(glmnet)
 
 set.seed(1234)
 
-train_indices <- sample(1:nrow(main_data), size = 330212, replace = FALSE) #half
-train_data <- slice(main_data, train_indices) 
-test_data  <- slice(main_data, -train_indices)
+train_indices <- sample(1:nrow(main_data_census), size = 330212, replace = FALSE) #half
+train_data <- slice(main_data_census, train_indices) 
+test_data  <- slice(main_data_census, -train_indices)
 
 
 ```
@@ -98,10 +98,12 @@ Main question: Why do lambda.min and lambda.1se both give me a 0 when computing 
 
 ```{r source - }
 
-x_summer <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population, main_data_census) 
+# TEST !!
+
+x_summer <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population, test_data) 
 
 
-y_summer <- ifelse(main_data_census$Summerkill == 1, 1, 0)
+y_summer <- ifelse(test_data$Summerkill == 1, 1, 0)
 
 ```
 
