@@ -206,7 +206,7 @@ t.test(ttest_winter$zscore_temp, mu = 0) # There are a lot of cold lakes without
 
 ```{r}
 
-# RIDGE ! !
+# lasso pop + coords ! !
 
 plot1<-main_data %>%
   group_by(Year) %>%
@@ -221,11 +221,11 @@ ggplot(aes(x=factor(Year), y = Summerkill, fill = Temp)) +
   scale_x_discrete()+
   guides(fill=FALSE) +
   theme_tufte()+
-  ylim(0,1500) +
+  ylim(0,300) +
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
 plot1
 
-plot2<-lasso_summer_predictions %>%
+plot2<-lasso_coords_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%  
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
@@ -238,13 +238,13 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   scale_x_discrete()+
   guides(fill=FALSE) +
   theme_tufte()+
-  ylim(0,1500) +
+  ylim(0,300) +
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
 plot2
 
 
 
-plot3<- lasso_summer_predictions %>%
+plot3<- lasso_coords_summer_predictions %>%
   filter(Year >2060) %>%
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
@@ -258,7 +258,7 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   #guides(fill=FALSE) +
   theme_tufte()+
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'right') +
-  ylim(0,1500) 
+  ylim(0,300) 
 plot3
 
 
@@ -384,19 +384,19 @@ color_seperated_lakes_of_wisconsin
 
 ```{r future}
 
-# RIDGE ! !
+# lasso coords ! !
 
-summarized_lasso_summer_predictions_p2 <- ridge_summer_predictions %>%
+summarized_lasso_summer_predictions_p2 <- lasso_coords_summer_predictions %>%
   filter(Year > 2030 & Year < 2070) %>%
   group_by(WBIC) %>%
   summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
 
-summarized_lasso_summer_predictions_p3 <- ridge_summer_predictions %>%
+summarized_lasso_summer_predictions_p3 <- lasso_coords_summer_predictions %>%
   filter(Year > 2070) %>%
   group_by(WBIC) %>%
   summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
 
-summarized_lasso_summer_predictions_both <- lasso_summer_predictions %>%
+summarized_lasso_summer_predictions_both <- lasso_coords_summer_predictions %>%
   filter(Year > 2020) %>%
   group_by(WBIC) %>%
   summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 

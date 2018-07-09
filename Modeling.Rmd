@@ -170,12 +170,12 @@ coef(ridge_regression_model_summer)
 
 ```{r source - }
 
-# TEST !!
+# full !!
 
-x_summer <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population + V1 + V2, test_data) 
+x_summer <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population + V1 + V2, main_data_census) 
 
 
-y_summer <- ifelse(test_data$Summerkill == 1, 1, 0)
+y_summer <- ifelse(main_data_census$Summerkill == 1, 1, 0)
 
 ```
 
@@ -283,10 +283,10 @@ newx<- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  
 
 
 
-lasso_coords_summer_predictions$Prob <- as.vector(predict(lasso_regression_model_summer, newx= newx, type = 'response'))
+lasso_coords_summer_predictions$Prob <- as.vector(predict(lasso_regression_coords_model_summer, newx= newx, type = 'response'))
 
 
-lasso_coords_summer_predictions$quantile <- quantile(lasso_summer_predictions$Prob,probs = c(.01, 25, 75)/100, na.rm = TRUE)
+lasso_coords_summer_predictions$quantile <- quantile(lasso_coords_summer_predictions$Prob,probs = c(.01, 25, 75)/100, na.rm = TRUE)
 
 ```
 
