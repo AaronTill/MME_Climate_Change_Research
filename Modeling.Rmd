@@ -91,7 +91,7 @@ mean(predicted_classes == observed_classes)
 ```
 
 
-Main question: Why do lambda.min and lambda.1se both give me a 0 when computing effectiveness....what does this mean?  Is this bad or good?
+
  
  
 # Lasso regression Summerkill final
@@ -166,6 +166,46 @@ coef(ridge_regression_model_summer)
 
 ```
 
+# Lasso + Coordinates Final
+
+```{r source - }
+
+# TEST !!
+
+x_summer <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population + V1 + V2, test_data) 
+
+
+y_summer <- ifelse(test_data$Summerkill == 1, 1, 0)
+
+```
+
+```{r}
+
+lambdatest <- glmnet(x_summer, y_summer, family = "binomial", alpha = 1)
+plot(lambdatest, xvar = 'lambda')
+
+```
+
+```{r observing lambdas}
+set.seed(1234)
+
+  grid=10^seq(10,-15,length=100)
+
+lasso_regression_coords_lambda_summer <- cv.glmnet(x_summer, y_summer, family = "binomial", alpha = 1, lambda = grid) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+
+plot(lasso_regression_coords_lambda_summer)
+
+```
+
+```{r making final lasso regression model}
+
+lasso_regression_coords_model_summer <- glmnet(x_summer, y_summer, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.min) 
+# alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+#use $lambda.1se instead of $lambda.min for simpler but less accurate model
+
+coef(lasso_regression_coords_model_summer)
+
+```
 
 #Building lasso predictions dataset 
 
@@ -229,6 +269,38 @@ ridge_summer_predictions$Summerkill_forecast <- simulation_log_regress
 
 
 ```
+
+
+#Building lasso coords predictions dataset 
+
+```{r}
+
+lasso_coords_summer_predictions <- future_data_census
+
+lasso_coords_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
+
+newx<- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population + V1 + V2, lasso_coords_summer_predictions) #why NEWX has to be a fake model and not just a dataset is unclear)
+
+
+
+lasso_coords_summer_predictions$Prob <- as.vector(predict(lasso_regression_model_summer, newx= newx, type = 'response'))
+
+
+lasso_coords_summer_predictions$quantile <- quantile(lasso_summer_predictions$Prob,probs = c(.01, 25, 75)/100, na.rm = TRUE)
+
+```
+
+```{r forecasting}
+set.seed(1234)
+
+a <- lasso_coords_summer_predictions$Prob
+simulation_log_regress <- rbinom(length(a), 1, prob = a)
+
+lasso_coords_summer_predictions$Summerkill_forecast <- simulation_log_regress
+
+```
+
+
 
 #Optional:
 
