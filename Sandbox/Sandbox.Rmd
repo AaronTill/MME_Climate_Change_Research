@@ -1,0 +1,223 @@
+---
+title: "Sandbox"
+author: "aaron till"
+date: "5/30/2018"
+output: html_document
+---
+
+```{r}
+
+lasso_model_test <- train_data
+
+#lasso_model_test$Summerkill <- 0 # Not sure why I am forced to make this
+
+newx<- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population, lasso_model_test) #why NEWX has to be a fake model and not just a dataset is unclear)
+
+
+
+lasso_model_test$Prob <- as.vector(predict(lasso_regression_model_summer, newx= newx, type = 'response'))
+
+
+ggplot(lasso_model_test, aes(x = factor(Summerkill), y = log(Prob))) +
+  geom_boxplot()
+
+lasso_model_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
+
+```
+
+```{r}
+
+ridge_model_test <- train_data
+
+#lasso_model_test$Summerkill <- 0 # Not sure why I am forced to make this
+
+newx<- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population, ridge_model_test) #why NEWX has to be a fake model and not just a dataset is unclear)
+
+
+
+ridge_model_test$Prob <- as.vector(predict(ridge_regression_model_summer, newx= newx, type = 'response'))
+
+
+ggplot(ridge_model_test, aes(x = factor(Summerkill), y = log(Prob))) +
+  geom_boxplot()
+
+ridge_model_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
+
+
+```
+
+```{r}
+
+lasso_coords_model_test <- train_data
+
+#lasso_model_test$Summerkill <- 0 # Not sure why I am forced to make this
+
+newx<- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population + V1 + V2, lasso_coords_model_test) #why NEWX has to be a fake model and not just a dataset is unclear)
+
+
+
+lasso_coords_model_test$Prob <- as.vector(predict(lasso_regression_coords_model_summer, newx= newx, type = 'response'))
+
+
+ggplot(lasso_coords_model_test, aes(x = factor(Summerkill), y = log(Prob))) +
+  geom_boxplot()
+
+lasso_coords_model_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
+
+```
+
+
+
+```{r kfold cross validation attempt}
+
+set.seed(1234)
+
+
+train_control <- trainControl(method = 'cv', number = 5, savePredictions = TRUE)
+
+test_lasso_prob <- train(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population, data = main_data_census, ttrControl = train_control)
+
+
+
+```
+
+
+```{r covariate exploration}
+library(forcats)
+main_data <- main_data %>%
+  mutate(Month = factor(Month, levels = c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')))
+
+main_data %>%
+  sample_frac(.1) %>%
+  ggplot(aes(x = Mean_Surf_Zscore, y = Mean_Surf_Temp)) +
+  geom_point() +
+  facet_wrap(~ Month)
+
+
+both_preds <- data_frame(ridge = ridge_summer_predictions$Prob,
+                         lasso = lasso_summer_predictions$Prob
+                         )
+both_preds %>%
+  ggplot(aes(x = ridge, y = lasso)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, color = "steelblue")
+
+
+```
+
+```{r mapping populatino}
+
+ggmap(Wisconsin_map) +
+  geom_point(data = filter(main_data_census, Month == 'Apr' & Year == '2010'), aes(x = V1, y = V2, color = population, alpha = population)) +
+  scale_color_gradient(low = 'Blue', high = 'Red') +
+  geom_path(data = map_data_w, aes(x = long, y = lat, group = group))
+
+
+ggmap(Wisconsin_map) +
+  geom_point(data = filter(main_data_census, Summerkill == 1), aes(x = V1, y = V2, color = population, alpha = population)) +
+  scale_color_gradient(low = 'Blue', high = 'Red') +  geom_path(data = map_data_w, aes(x = long, y = lat, group = group))
+
+
+
+```
+
+
+```{r}
+
+ggplot(data = main_data_census, aes(x = Summerkill, y = log(population))) +
+  geom_boxplot(aes(group = Summerkill))
+
+
+ggplot(data = main_data_census, aes(x = MME, y = log(population))) +
+  geom_boxplot(aes(group = MME))
+
+
+```
+
+
+
+
+
+```{r Filtering only Wisconsin - already doing this w/ WBIC but extra checking}
+
+main_data_wisconsin<- main_data %>% 
+  filter(V1 > -93.54 & V1 < -86.46) %>% # Extending 1 degree south and west from wikipedia borders to incorporate all MMES
+  filter(V2 < 47.05 & V2 > 41.30)
+
+```
+
+#AV plots Summerkills plus reg logreg plot
+
+Taken from feature selection of lasso regression of summerkill in modeling.Rmd + Season for controlling
+
+
+```{r sample}
+
+set.seed(1234)
+
+summer_sample_main_data <- merge(filter(main_data, Summerkill == 1), sample_n(filter(main_data, Summerkill == 0), size = 300), all = TRUE)
+
+logreg_summerkill <- glm(Summerkill ~ Mean_Surf_Temp + Cumulative_Above_0 + V2 + Season, family = 'binomial', data= summer_sample_main_data)
+summary(logreg_summerkill)
+
+
+logreg_summerkill_one_variable <- glm(Summerkill ~ Mean_Surf_Temp, family = 'binomial', data= filter(main_data, Season == 'Summer'))
+summary(logreg_summerkill_one_variable)
+
+```
+
+```{r}
+
+log_plot_summerkill_mean_surf <- ggplot(filter(summer_sample_main_data, Season == 'Summer'), aes(x= Mean_Surf_Temp, y = Summerkill)) +
+  geom_jitter(alpha = 0.5, height= 0.05) +
+  geom_smooth(method = 'glm', method.args = list(family = 'binomial')) +
+  xlab('Temperature') +
+  ylab('MME') +
+  theme_tufte()
+log_plot_summerkill_mean_surf
+
+log_plot_summerkill_AV <- avPlot(logreg_summerkill, variable = 'Mean_Surf_Temp',xlab = 'Mean Surface Temperature | Others', ylab = 'Summerkill | Others')
+
+
+log_plot_summerkill_AV      
+
+```
+
+
+
+
+# AV plot for Winterkill plus reg logreg plots
+
+Taken from lasso feature selection of winterkill only in modeling.Rmd
+
+```{r sample}
+
+set.seed(1234)
+
+winter_sample_main_data <- merge(filter(main_data, Winterkill == 1), sample_n(filter(main_data, Winterkill == 0), size = 300), all = TRUE)
+
+logreg_winterkill <- glm(Winterkill ~ Mean_Surf_Temp + Season + V2, family = 'binomial', data= winter_sample_main_data)
+summary(logreg_winterkill)
+
+logreg_winterkill_one_variable <- glm(Winterkill ~ Mean_Surf_Temp, family = 'binomial', data= filter(main_data, Season == 'Winter'))
+summary(logreg_winterkill_one_variable)
+
+
+```
+
+```{r}
+
+log_plot_winterkill_mean_surf <- ggplot(filter(winter_sample_main_data, Season == 'Winter'), aes(x= Mean_Surf_Temp, y = Winterkill)) +
+  geom_jitter(alpha = 0.5, height= 0.05) +
+  geom_smooth(method = 'glm', method.args = list(family = 'binomial')) +
+  xlab('Temperature') +
+  ylab('MME') +
+  theme_tufte()
+log_plot_winterkill_mean_surf
+
+log_plot_winterkill_AV <- avPlot(logreg_winterkill, variable = 'Mean_Surf_Temp',xlab = 'Mean Surface Temperature | Others', ylab = 'Summerkill | Others')
+
+
+log_plot_winterkill_AV      
+
+```
