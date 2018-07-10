@@ -10,100 +10,16 @@ library(caret)
 library(glmnet)
 
 ```
-
-
-```{r creating 50% random split for training/testing}
-
-set.seed(1234)
-
-train_indices <- sample(1:nrow(main_data_census), size = 330212, replace = FALSE) #half
-train_data <- slice(main_data_census, train_indices) 
-test_data  <- slice(main_data_census, -train_indices)
-
-
-```
-
-```{r missclassification function}
-
-get_misclass <- function(model) {
-  y <- predict(model, newdata = test_data, type = "response")
-  test <- test_data %>%
-    mutate(p_hat = y, pred_MME = p_hat > .5)
-  table(test$MME, test$pred_MME)
-  confusion_mat <- test %>%
-    group_by(MME, pred_MME) %>%
-    tally()
-  false_pos <- confusion_mat[2, 3]
-  false_neg <- confusion_mat[3, 3]
-  total_obs <- nrow(test)
-  misclassification <- (false_pos + false_neg)/total_obs
-  misclassification
-
-
-}
-```
-
-
-
-
-# Lasso Regression summerkill testing
-
-```{r source - http://www.sthda.com/english/articles/36-classification-methods-essentials/149-penalized-logistic-regression-essentials-in-r-ridge-lasso-and-elastic-net/}
-
-x <- model.matrix(Summerkill ~ Year + Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Season + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, train_data) 
-
-
-y <- ifelse(train_data$Summerkill == 1, 1, 0)
-
-```
-
-increasing lambda 
-
-```{r observing lambdas and making final lasso regression model}
-set.seed(1234)
-
-
-lasso_regression_lambdas <- cv.glmnet(x, y, family = "binomial", alpha = 1) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
-
-lasso_regression_model <- glmnet(x, y, family = "binomial", alpha = 1, lambda = lasso_regression_lambdas$lambda.1se) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
-#use lambda.1se instead of lambda.min for simpler but less accurate model
-
-#coef(lasso_regression_model)
-
-``` 
-
-
-
-```{r}
-
-lasso_regression_test <- model.matrix(Summerkill ~ Year + Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Season + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + V2, test_data)
-
-
-
-probabilities <- lasso_regression_model %>% predict(newx = lasso_regression_test)
-predicted_classes <- ifelse(probabilities > 0.5, 1, 0)
-# Model accuracy 
-observed_classes <- test_data$Summerkill
-mean(predicted_classes == observed_classes)
-
-
-
-```
-
-
-
  
  
-# Lasso regression Summerkill final
+# Lasso regression Summerkill just pop.
 
 ```{r source - }
 
-# TEST !!
-
-x_summer <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population, test_data) 
+x_summer <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population, main_data_census) 
 
 
-y_summer <- ifelse(test_data$Summerkill == 1, 1, 0)
+y_summer <- ifelse(main_data_census$Summerkill == 1, 1, 0)
 
 ```
 
@@ -133,15 +49,20 @@ lasso_regression_model_summer <- glmnet(x_summer, y_summer, family = "binomial",
 coef(lasso_regression_model_summer)
 
 ```
-# Ridge regression Summerkill final
-
-x_summer 
-y_summer
-from lasso regression above 
+# Ridge regression Summerkill pop + coords
 
 ```{r}
 
-lambdatest <- glmnet(x_summer, y_summer, family = "binomial", alpha = 0)
+x_summer_coords <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population + V1 + V2, main_data_census) 
+
+
+y_summer_coords <- ifelse(main_data_census$Summerkill == 1, 1, 0)
+
+```
+
+```{r}
+
+lambdatest <- glmnet(x_summer_coords, y_summer_coords, family = "binomial", alpha = 0)
 plot(lambdatest, xvar = 'lambda')
 
 ```
@@ -150,7 +71,7 @@ plot(lambdatest, xvar = 'lambda')
 set.seed(1234)
 
 
-ridge_regression_lambda_summer <- cv.glmnet(x_summer, y_summer, family = "binomial", alpha = 0) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+ridge_regression_lambda_summer <- cv.glmnet(x_summer_coords, y_summer_coords, family = "binomial", alpha = 0) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 
 plot(ridge_regression_lambda_summer)
 
@@ -158,7 +79,7 @@ plot(ridge_regression_lambda_summer)
 
 ```{r making final lasso regression model}
 
-ridge_regression_model_summer <- glmnet(x_summer, y_summer, family = "binomial", alpha = 0, lambda = ridge_regression_lambda_summer$lambda.min) 
+ridge_regression_model_summer <- glmnet(x_summer_coords, y_summer_coords, family = "binomial", alpha = 0, lambda = ridge_regression_lambda_summer$lambda.min) 
 # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 #use $lambda.1se instead of $lambda.min for simpler but less accurate model
 
@@ -166,22 +87,17 @@ coef(ridge_regression_model_summer)
 
 ```
 
-# Lasso + Coordinates Final
+# Lasso regression coords + pop
 
-```{r source - }
-
-# full !!
-
-x_summer <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population + V1 + V2, main_data_census) 
+x_summer_coords 
+y_summer_coords
+from ridge regression above
 
 
-y_summer <- ifelse(main_data_census$Summerkill == 1, 1, 0)
-
-```
 
 ```{r}
 
-lambdatest <- glmnet(x_summer, y_summer, family = "binomial", alpha = 1)
+lambdatest <- glmnet(x_summer_coords, y_summer_coords, family = "binomial", alpha = 1)
 plot(lambdatest, xvar = 'lambda')
 
 ```
@@ -189,9 +105,9 @@ plot(lambdatest, xvar = 'lambda')
 ```{r observing lambdas}
 set.seed(1234)
 
-  grid=10^seq(10,-15,length=100)
+grid=10^seq(10,-15,length=100) # set lambda equal to for checking if more extensive lambda needed, no difference
 
-lasso_regression_coords_lambda_summer <- cv.glmnet(x_summer, y_summer, family = "binomial", alpha = 1, lambda = grid) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+lasso_regression_coords_lambda_summer <- cv.glmnet(x_summer_coords, y_summer_coords, family = "binomial", alpha = 1) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 
 plot(lasso_regression_coords_lambda_summer)
 
@@ -199,7 +115,7 @@ plot(lasso_regression_coords_lambda_summer)
 
 ```{r making final lasso regression model}
 
-lasso_regression_coords_model_summer <- glmnet(x_summer, y_summer, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.min) 
+lasso_regression_coords_model_summer <- glmnet(x_summer_coords, y_summer_coords, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.min) 
 # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 #use $lambda.1se instead of $lambda.min for simpler but less accurate model
 
@@ -207,7 +123,39 @@ coef(lasso_regression_coords_model_summer)
 
 ```
 
-#Building lasso predictions dataset 
+
+ 
+# Normal Logistic Regression modeling + dataset building
+
+
+```{r creating reg_predictions and quartiles}
+set.seed(1234)
+
+regression_model <- glm(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population + V1 + V2, family = 'binomial', data=main_data_census) 
+
+reg_predictions <- na.omit(future_data_census) 
+reg_predictions$Prob <- predict(regression_model, na.omit(future_data_census), type = 'response')
+reg_predictions$quantile <- quantile(reg_predictions$Prob,probs = c(min(reg_predictions$Prob), max(reg_predictions$Prob)), na.rm = TRUE)
+
+coef(regression_model)
+
+```
+
+```{r forecasting}
+set.seed(1234)
+
+a <- reg_predictions$Prob
+simulation_log_regress <- rbinom(length(a), 1, prob = a)
+
+reg_predictions$Summerkill_forecast <- simulation_log_regress
+
+```
+
+
+# Building datasets for shrinkage model outputs
+
+
+#Building lasso pop predictions dataset 
 
 ```{r}
 
@@ -237,7 +185,7 @@ lasso_summer_predictions$Summerkill_forecast <- simulation_log_regress
 ```
 
 
-#Building ridge predictions dataset 
+#Building ridge pop+coords predictions dataset 
 
 
 ```{r}
@@ -247,7 +195,7 @@ ridge_summer_predictions <- future_data_census
 ridge_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
 
 
-newx<- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population, ridge_summer_predictions) #why NEWX has to be a fake model and not just a dataset is unclear)
+newx<- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population + V1 + V2, ridge_summer_predictions) #why NEWX has to be a fake model and not just a dataset is unclear)
 
 
 ridge_summer_predictions$Prob <- as.vector(predict(ridge_regression_model_summer, newx= newx, type = 'response'))
@@ -271,7 +219,7 @@ ridge_summer_predictions$Summerkill_forecast <- simulation_log_regress
 ```
 
 
-#Building lasso coords predictions dataset 
+#Building lasso coords/pop predictions dataset 
 
 ```{r}
 
@@ -301,18 +249,266 @@ lasso_coords_summer_predictions$Summerkill_forecast <- simulation_log_regress
 ```
 
 
+# Testing Models
 
-#Optional:
+```{r creating 50% random split for training/testing}
+
+set.seed(1234)
+
+train_indices <- sample(1:nrow(main_data_census), size = 330212 , replace = FALSE) # 4/5ths = 528339 #half = 330212
+train_data <- slice(main_data_census, train_indices) 
+test_data  <- slice(main_data_census, -train_indices)
+
+
+flds <- createFolds(main_data_census, k = 5, list = TRUE, returnTrain = TRUE)
+
+```
+
+
+```{r}
+cv_5 = trainControl(method = 'cv', number = 5)
+
+tuneGrid=expand.grid(.alpha=1,.lambda=seq(lasso_regression_lambda_summer$lambda.min))
+
+lasso_regression_k <- train(factor(Summerkill) ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population, data = main_data_census, trControl = cv_5, family = 'binomial' )
+
+lasso_model_test_k <- main_census
+
+newx <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population, main_data_census)
+
+lasso_model_test_k$Prob <- as.vector(predict(lasso_regression_k), newx = newx, type = 'response')
+  
+ggplot(lasso_model_test_k, aes(x = factor(Summerkill), y = log(Prob))) +
+  geom_boxplot()
+
+lasso_model_test_k %>% group_by(Summerkill) %>% summarise(mean(Prob))
+```
+
+# Lasso Regression pop summerkill testing - test/training
+
+```{r source - http://www.sthda.com/english/articles/36-classification-methods-essentials/149-penalized-logistic-regression-essentials-in-r-ridge-lasso-and-elastic-net/}
+
+x_train <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population, train_data) 
+
+
+y_train <- ifelse(train_data$Summerkill == 1, 1, 0)
+
+```
+
+
+making training model
+
+```{r}
+lasso_regression_train <- glmnet(x_train, y_train, family = "binomial", alpha = 1, lambda = lasso_regression_lambda_summer$lambda.min) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+#use lambda.1se instead of lambda.min for simpler but less accurate model
+#can use lambda from regular model
+
+#coef(lasso_regression_model)
+
+``` 
+
+testing for missclassification
+
+```{r}
+
+lasso_regression_test <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population, test_data)
+
+
+
+probabilities <- lasso_regression_train %>% predict(newx = lasso_regression_test)
+predicted_classes <- ifelse(probabilities > 0.5, 1, 0)
+# Model accuracy 
+observed_classes <- test_data$Summerkill
+mean(predicted_classes == observed_classes)
+
+
+```
+
+testing for average probability seperation
+
+```{r}
+
+lasso_model_test <- test_data
+
+
+lasso_model_test$Prob <- as.vector(predict(lasso_regression_train, newx= lasso_regression_test, type = 'response'))
+
+
+ggplot(lasso_model_test, aes(x = factor(Summerkill), y = log(Prob))) +
+  geom_boxplot()
+
+lasso_model_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
+
+```
+
+
+
+
+# Ridge Regression pop + coords summerkill testing - test/training
+
+
+```{r}
+
+x_train_coords <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population + V1 + V2, train_data) 
+
+
+y_train_coords <- ifelse(train_data$Summerkill == 1, 1, 0)
+
+```
+
+making training model
+
+```{r}
+ridge_regression_train <- glmnet(x_train_coords, y_train_coords, family = "binomial", alpha = 0, lambda = ridge_regression_lambda_summer$lambda.min) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+#use lambda.1se instead of lambda.min for simpler but less accurate model
+#can use lambda from regular model
+
+#coef(lasso_regression_model)
+
+``` 
+
+testing for missclassification
+
+```{r}
+
+ridge_regression_test <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population + V1 + V2, test_data)
+
+
+
+probabilities <- ridge_regression_train %>% predict(newx = ridge_regression_test)
+predicted_classes <- ifelse(probabilities > 0.5, 1, 0)
+# Model accuracy 
+observed_classes <- test_data$Summerkill
+mean(predicted_classes == observed_classes)
+
+
+```
+
+testing for average probability seperation
+
+```{r}
+
+ridge_model_test <- test_data
+
+
+ridge_model_test$Prob <- as.vector(predict(ridge_regression_train, newx= ridge_regression_test, type = 'response'))
+
+
+ggplot(ridge_model_test, aes(x = factor(Summerkill), y = log(Prob))) +
+  geom_boxplot()
+
+ridge_model_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
+
+```
+
+
+# Lasso COORDS + pop summerkill testing - test/training
+
+
+x_train_coords / y_train_coords same as lasso
+
+
+
+making training model
+
+```{r}
+lasso_coords_regression_train <- glmnet(x_train_coords, y_train_coords, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.min) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+#use lambda.1se instead of lambda.min for simpler but less accurate model
+#can use lambda from regular model
+
+#coef(lasso_regression_model)
+
+``` 
+
+testing for missclassification
+
+```{r}
+
+lasso_coords_regression_test <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population + V1 + V2, test_data)
+
+
+
+probabilities <- lasso_coords_regression_train %>% predict(newx = lasso_coords_regression_test)
+predicted_classes <- ifelse(probabilities > 0.5, 1, 0)
+# Model accuracy 
+observed_classes <- test_data$Summerkill
+mean(predicted_classes == observed_classes)
+
+
+```
+
+testing for average probability seperation
+
+```{r}
+
+lasso_coords_model_test <- test_data
+
+
+lasso_coords_model_test$Prob <- as.vector(predict(lasso_coords_regression_train, newx= lasso_coords_regression_test, type = 'response'))
+
+
+ggplot(lasso_coords_model_test, aes(x = factor(Summerkill), y = log(Prob))) +
+  geom_boxplot()
+
+lasso_coords_model_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
+
+```
+
+# regular regression testing
+
+
+making training model
+
+```{r}
+reg_train <- glm(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population + V1 + V2  = 'binomial', data=train_data) 
+``` 
+
+testing for missclassification
+
+```{r}
+
+
+
+probabilities <- predict(reg_train, test_data, type = 'response')
+predicted_classes <- ifelse(probabilities > 0.5, 1, 0)
+observed_classes <- test_data$Summerkill
+mean(predicted_classes == observed_classes)
+
+
+```
+
+testing for average probability seperation
+
+```{r}
+
+reg_predictions_test <- test_data
+
+reg_predictions_test$Prob <- predict(reg_train, test_data, type = 'response')
+
+
+
+
+ggplot(reg_predictions_test, aes(x = factor(Summerkill), y = log(Prob))) +
+  geom_boxplot()
+
+reg_predictions_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
+
+```
+
+
+#Optional - Trend
 
 
 ```{r looking at trend of predictions}
 
-change_MME_freq_future <- glm(Summerkill_forecast ~ Year, family = 'binomial', data=reg_predictions)
+change_MME_freq_future <- glm(Summerkill_forecast ~ Year, family = 'binomial', data=  )
 
 
 summary(change_MME_freq_future) 
 
 ```
+
+# User Model Data
 
 ```{r user data}
 
@@ -326,25 +522,6 @@ write.csv(Lake_Risk_Assesment, "Lake_Risk_Assessment.csv")
 
 ```
 
- 
-# Normal Logistic Regression 
-
-Based on feature selection from lasso - is this adequate? NO, scraps this eventually
-
-  Should i do just summerkill
-
-
-```{r creating reg_predictions and quartiles}
-set.seed(1234)
-
-regression_model <- glm(MME ~ Mean_Surf_Temp + layer_dif, family = 'binomial', data=main_data) # data sample for predictions
-
-reg_predictions <- na.omit(future_data) # NEED TO MAKE STILL
-reg_predictions$Prob <- predict(regression_model, na.omit(future_data), type = 'response')
-#reg_predictions$MME <- ifelse(reg_predictions$Prob > 0.5, 1, 0) - WILL NEVER APPLY
-reg_predictions$quantile <- quantile(reg_predictions$Prob,probs = c(min(reg_predictions$Prob), max(reg_predictions$Prob)), na.rm = TRUE)
-
-```
 
 # Lasso Just Winterkill - needs fixing
 

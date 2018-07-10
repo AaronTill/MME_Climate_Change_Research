@@ -206,7 +206,7 @@ t.test(ttest_winter$zscore_temp, mu = 0) # There are a lot of cold lakes without
 
 ```{r}
 
-# lasso pop + coords ! !
+# reg log ! !
 
 plot1<-main_data %>%
   group_by(Year) %>%
@@ -225,7 +225,7 @@ ggplot(aes(x=factor(Year), y = Summerkill, fill = Temp)) +
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
 plot1
 
-plot2<-lasso_coords_summer_predictions %>%
+plot2<-reg_predictions %>%
   filter(Year <2060 & Year > 2030) %>%  
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
@@ -244,7 +244,7 @@ plot2
 
 
 
-plot3<- lasso_coords_summer_predictions %>%
+plot3<- reg_predictions %>%
   filter(Year >2060) %>%
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
@@ -384,14 +384,14 @@ color_seperated_lakes_of_wisconsin
 
 ```{r future}
 
-# lasso coords ! !
+# reg log ! !
 
-summarized_lasso_summer_predictions_p2 <- lasso_coords_summer_predictions %>%
+summarized_lasso_summer_predictions_p2 <- reg_predictions %>%
   filter(Year > 2030 & Year < 2070) %>%
   group_by(WBIC) %>%
   summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
 
-summarized_lasso_summer_predictions_p3 <- lasso_coords_summer_predictions %>%
+summarized_lasso_summer_predictions_p3 <- reg_predictions %>%
   filter(Year > 2070) %>%
   group_by(WBIC) %>%
   summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
