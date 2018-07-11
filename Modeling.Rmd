@@ -124,7 +124,7 @@ plot(lasso_regression_coords_lambda_summer)
 
 ```{r making final lasso regression model}
 
-lasso_regression_coords_model_summer <- glmnet(x_summer_coords, y_summer_coords, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.min) 
+lasso_regression_coords_model_summer <- glmnet(x_all, y_all, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.min) 
 # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 #use $lambda.1se instead of $lambda.min for simpler but less accurate model
 
@@ -422,13 +422,18 @@ ridge_model_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
 
 
 x_train_coords / y_train_coords same as lasso
+```{r}
 
+train_modeling_data <- select(train_data, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - Year, - GNIS_ID, - site_id, - WBIC, - Winterkill, - Infection, - Anthropogenic, - MME, - Month, - Season, - Spring)
 
+x_all_train <- model.matrix(Summerkill ~ ., train_modeling_data)
 
+y_all_train <- ifelse(train_modeling_data$Summerkill == 1, 1, 0)
+```
 making training model
 
 ```{r}
-lasso_coords_regression_train <- glmnet(x_train_coords, y_train_coords, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.min) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+lasso_coords_regression_train <- glmnet(x_all_train, y_all_train, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.min) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 #use lambda.1se instead of lambda.min for simpler but less accurate model
 #can use lambda from regular model
 
@@ -441,6 +446,9 @@ testing for missclassification
 ```{r}
 
 lasso_coords_regression_test <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population + V1 + V2, test_data)
+
+
+lasso_coords_regression_test_all <- model.matrix(Summerkill ~ . , select(train_data, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - Year, - GNIS_ID, - site_id, - WBIC, - Winterkill, - Infection, - Anthropogenic, - MME, - Month, - Season, - Spring))
 
 
 
@@ -457,10 +465,10 @@ testing for average probability seperation
 
 ```{r}
 
-lasso_coords_model_test <- test_data
+lasso_coords_model_test <- select(test_data, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - Year, - GNIS_ID, - site_id, - WBIC, - Winterkill, - Infection, - Anthropogenic, - MME, - Month, - Season, - Spring)
 
 
-lasso_coords_model_test$Prob <- as.vector(predict(lasso_coords_regression_train, newx= lasso_coords_regression_test, type = 'response'))
+lasso_coords_model_test$Prob <- as.vector(predict(lasso_coords_regression_train, newx= lasso_coords_regression_test_all, type = 'response'))
 
 
 ggplot(lasso_coords_model_test, aes(x = factor(Summerkill), y = log(Prob))) +
