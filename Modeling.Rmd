@@ -11,7 +11,7 @@ library(glmnet)
 ```
 
 ```{r}
-modeling_data <- select(main_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - Year, - GNIS_ID, - site_id, - WBIC, - Winterkill, - Infection, - Anthropogenic, - MME, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round) 
+modeling_data <- select(main_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - Year, - GNIS_ID, - site_id, - WBIC, - Winterkill, - Infection, - Anthropogenic, - MME, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - Ice_Duration) 
  
 ```
  
@@ -39,7 +39,9 @@ plot(lambdatest, xvar = 'lambda')
 set.seed(1234)
 
 
-ridge_regression_lambda_summer <- cv.glmnet(x_ridge, y_ridge, family = "binomial", alpha = 0, lambda = c(10^-5, 10^-3.5, 10^-4)) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+# experimenting for quicker run, lambda = c(10^-5, 10^-3.5, 10^-4)
+
+ridge_regression_lambda_summer <- cv.glmnet(x_ridge, y_ridge, family = "binomial", alpha = 0, nfolds = 3) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 
 plot(ridge_regression_lambda_summer)
 
@@ -47,7 +49,7 @@ plot(ridge_regression_lambda_summer)
 
 ```{r making final lasso regression model}
 
-ridge_regression_model_summer <- glmnet(x_ridge, y_ridge, family = "binomial", alpha = 0, lambda = ridge_regression_lambda_summer$lambda.min) 
+ridge_regression_model_summer <- glmnet(x_ridge, y_ridge, family = "binomial", alpha = 0, lambda = ridge_regression_lambda_summer$lambda.1se) 
 # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 #use $lambda.1se instead of $lambda.min for simpler but less accurate model
 
@@ -79,7 +81,9 @@ set.seed(1234)
 
 grid=10^seq(10,-15,length=100) # set lambda equal to for checking if more extensive lambda needed, no difference
 
-lasso_regression_coords_lambda_summer <- cv.glmnet(x_all, y_all, family = "binomial", alpha = 1, lambda = c(10^-7, 10^-5.5, 10^-4)) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+# for quicker, lambda = c(10^-7, 10^-5.5, 10^-4)
+
+lasso_regression_coords_lambda_summer <- cv.glmnet(x_all, y_all, family = "binomial", alpha = 1, nfolds = 3) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 
 plot(lasso_regression_coords_lambda_summer)
 
@@ -87,7 +91,7 @@ plot(lasso_regression_coords_lambda_summer)
 
 ```{r making final lasso regression model}
 
-lasso_regression_coords_model_summer <- glmnet(x_all, y_all, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.min) 
+lasso_regression_coords_model_summer <- glmnet(x_all, y_all, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.1se) 
 # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 #use $lambda.1se instead of $lambda.min for simpler but less accurate model
 
@@ -97,7 +101,7 @@ coef(lasso_regression_coords_model_summer)
 
 
  
-# Normal Logistic Regression modeling + dataset building
+# Normal Logistic Regression modeling 
 
 
 ```{r creating reg_predictions and quartiles}
@@ -105,34 +109,19 @@ set.seed(1234)
 
 regression_model <- glm(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore +layer_dif + Schmidt + population + V1 + V2, family = 'binomial', data=main_data_census) 
 
-reg_predictions <- na.omit(future_data_census) 
-reg_predictions$Prob <- predict(regression_model, na.omit(future_data_census), type = 'response')
-reg_predictions$quantile <- quantile(reg_predictions$Prob,probs = c(min(reg_predictions$Prob), max(reg_predictions$Prob)), na.rm = TRUE)
-
 coef(regression_model)
-
 ```
 
-```{r forecasting}
-set.seed(1234)
-
-a <- reg_predictions$Prob
-simulation_log_regress <- rbinom(length(a), 1, prob = a)
-
-reg_predictions$Summerkill_forecast <- simulation_log_regress
-
-```
 
 
 # Building datasets for shrinkage model outputs
-
 
 
 #Building ridge  predictions dataset 
 
 
 ```{r}
-ridge_summer_predictions <- na.omit(select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID,- Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year))
+ridge_summer_predictions <- select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID,- Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year)
 
 
 ridge_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
@@ -166,7 +155,7 @@ ridge_summer_predictions$Summerkill_forecast <- simulation_log_regress
 
 ```{r}
 
-lasso_coords_summer_predictions <- na.omit(select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year))
+lasso_coords_summer_predictions <- select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year)
 
 lasso_coords_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
 
@@ -190,6 +179,30 @@ simulation_log_regress <- rbinom(length(a), 1, prob = a)
 lasso_coords_summer_predictions$Summerkill_forecast <- simulation_log_regress
 
 ```
+
+# Building Normal Regression Dataset
+
+
+```{r}
+
+reg_predictions <- future_data_census
+reg_predictions$Prob <- predict(regression_model,future_data_census, type = 'response')
+reg_predictions$quantile <- quantile(reg_predictions$Prob,probs = c(min(reg_predictions$Prob), max(reg_predictions$Prob)), na.rm = TRUE)
+
+
+
+```
+
+```{r forecasting}
+set.seed(1234)
+
+a <- reg_predictions$Prob
+simulation_log_regress <- rbinom(length(a), 1, prob = a)
+
+reg_predictions$Summerkill_forecast <- simulation_log_regress
+
+```
+
 
 
 # Testing Models

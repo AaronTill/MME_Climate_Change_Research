@@ -37,10 +37,12 @@ boxplot1 <- mean_surf(combined_data_restricted) %>%
   filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMER NON-EVENT' | Cause.Category.4 == 'INFECTIOUS AGENT') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +  
-  ylab(NULL)+
+  ylab('Mean Surface Temperature')+
+    theme(text = element_text(size=10))+
+
   xlab(NULL)+
-  geom_boxplot(aes(fill = sig)) + 
-  ggtitle('B') +
+  geom_boxplot(outlier.alpha = 0.1, aes(fill = sig)) + 
+  ggtitle('A') +
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'ANOVA'))
 
 boxplot2 <- mean_surf(combined_data_restricted) %>%
@@ -48,12 +50,13 @@ boxplot2 <- mean_surf(combined_data_restricted) %>%
   filter(Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMER NON-EVENT') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
-  ylab(NULL) +
-  xlab('Category of Killtype')+
-  geom_boxplot(aes(fill = sig)) +
+  ylab('Zscore') +
+  geom_boxplot(outlier.alpha = 0.1, aes(fill = sig)) +
+    theme(text = element_text(size=10))+
+
   xlab(NULL) +
   geom_hline(yintercept = 0, alpha = 0.5)+ 
-  ggtitle('D') +
+  ggtitle('C') +
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'T-test'))
 
 grid.arrange(boxplot1, boxplot2)
@@ -112,11 +115,12 @@ boxplot1_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +
-  ylab('Mean Surface Temperature')+
+  ylab(NULL)+
   xlab(NULL)+
-  geom_boxplot(aes(fill = sig))+ 
+  theme(text = element_text(size=10))+
+  geom_boxplot(outlier.alpha = 0.1, aes(fill = sig))+ 
   guides(fill = FALSE)+ 
-  ggtitle('A') +
+  ggtitle('B') +
   scale_fill_manual(values = c('grey', 'gold'))
 
 boxplot2_winter <- mean_surf(combined_data_restricted_winter) %>%
@@ -125,14 +129,15 @@ boxplot2_winter <- mean_surf(combined_data_restricted_winter) %>%
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
   xlab('Category of Killtype')+
-  geom_boxplot(aes(fill = sig)) +
+  geom_boxplot(outlier.alpha = 0.1, aes(fill = sig)) +
+  theme(text = element_text(size=10))+
   xlab(NULL) +
-  ylab('Zscore')+
+  ylab(NULL)+
   ylim(-2.5,2) +
   geom_hline(yintercept = 0, alpha = 0.5)+
   scale_fill_brewer()+ 
   guides(fill = FALSE)+ 
-  ggtitle('C') +
+  ggtitle('D') +
   scale_fill_manual(values = c('grey', 'gold'))
 
 grid.arrange(boxplot1_winter, boxplot2_winter)
@@ -180,8 +185,8 @@ combined_data_restricted$Cause.Category.4 <- factor(combined_data_restricted$Cau
 
 
 
-xbox <- grid.arrange(boxplot1_winter, boxplot1,  ncol = 2, widths = c(3.4, 6))
-ybox <- grid.arrange(boxplot2_winter,boxplot2, ncol = 2, widths = c(3.4, 6))
+xbox <- grid.arrange(boxplot1,boxplot1_winter,ncol = 2, widths = c(6, 3.4))
+ybox <- grid.arrange(boxplot2,boxplot2_winter, ncol = 2, widths = c(6, 3.4))
 
 grid.arrange(xbox, ybox)
 
@@ -205,7 +210,7 @@ t.test(ttest_winter$zscore_temp, mu = 0) # There are a lot of cold lakes without
 
 ```{r}
 
-# ridge ! !
+# lasso ! !
 
 plot1<-main_data %>%
   group_by(Year) %>%
@@ -220,11 +225,11 @@ ggplot(aes(x=factor(Year), y = Summerkill, fill = Temp)) +
   scale_x_discrete()+
   guides(fill=FALSE) +
   theme_tufte()+
-  ylim(0,300) +
+  ylim(0,600) +
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
 plot1
 
-plot2<-ridge_summer_predictions %>%
+plot2<-lasso_coords_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%  
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
@@ -237,13 +242,13 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   scale_x_discrete()+
   guides(fill=FALSE) +
   theme_tufte()+
-  ylim(0,300) +
+  ylim(0,600) +
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
 plot2
 
 
 
-plot3<- ridge_summer_predictions %>%
+plot3<- lasso_coords_summer_predictions %>%
   filter(Year >2060) %>%
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
@@ -257,7 +262,7 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   #guides(fill=FALSE) +
   theme_tufte()+
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'right') +
-  ylim(0,300) 
+  ylim(0,600) 
 plot3
 
 
@@ -281,13 +286,13 @@ main_data %>%
   #mean = n() / 10
 
 
-lasso_summer_predictions %>%
+lasso_coords_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp)) %>%
   arrange(desc(Summerkill))
 
-lasso_summer_predictions %>%
+lasso_coords_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%
   filter(Summerkill_forecast == 1) %>%
   group_by(Year) %>%
@@ -296,13 +301,13 @@ lasso_summer_predictions %>%
     #mean = n()/19
 
 
-lasso_summer_predictions %>%
+lasso_coords_summer_predictions %>%
   filter(Year >2060) %>%
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp)) %>%
   arrange(desc(Summerkill))
 
-lasso_summer_predictions %>%
+lasso_coords_summer_predictions %>%
   filter(Year >2060) %>%
   filter(Summerkill_forecast == 1) %>%
   group_by(Year) %>%
@@ -385,12 +390,12 @@ color_seperated_lakes_of_wisconsin
 
 # reg log ! !
 
-summarized_lasso_summer_predictions_p2 <- reg_predictions %>%
+summarized_lasso_summer_predictions_p2 <- lasso_coords_summer_predictions %>%
   filter(Year > 2030 & Year < 2070) %>%
   group_by(WBIC) %>%
   summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
 
-summarized_lasso_summer_predictions_p3 <- reg_predictions %>%
+summarized_lasso_summer_predictions_p3 <- lasso_coords_summer_predictions %>%
   filter(Year > 2070) %>%
   group_by(WBIC) %>%
   summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 

@@ -18,7 +18,7 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   xlab('Category of Killtype')+
   xlab(NULL) +
   geom_hline(yintercept = 0, alpha = 0.5) + 
-  geom_boxplot(aes(fill = sig_all)) + 
+  geom_boxplot(outlier.alpha = 0.1,aes(fill = sig_all)) + 
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'T-test'))
 
 ultimate_zscore_boxplot
@@ -56,7 +56,7 @@ ggplot(aes(y = ice_duration_days,x = Cause.Category.4)) +
   ylab('Ice Duration (Days)')+
   xlab('Category of Killtype')+
   xlab(NULL) +
-  geom_boxplot(aes(fill = sig_ice)) + 
+  geom_boxplot(outlier.alpha = 0.1, aes(fill = sig_ice)) + 
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'ANOVA'))
 
 ice_duration_boxplot
@@ -71,7 +71,7 @@ tuk <- TukeyHSD(anova_ice)
 tuk
 ```
 
-```
+
 
 ```{r MME distribution}
 
