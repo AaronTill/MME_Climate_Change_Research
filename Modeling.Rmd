@@ -103,7 +103,7 @@ coef(lasso_regression_coords_model_summer)
 ```{r creating reg_predictions and quartiles}
 set.seed(1234)
 
-regression_model <- glm(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + population + V1 + V2, family = 'binomial', data=main_data_census) 
+regression_model <- glm(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore +layer_dif + Schmidt + population + V1 + V2, family = 'binomial', data=main_data_census) 
 
 reg_predictions <- na.omit(future_data_census) 
 reg_predictions$Prob <- predict(regression_model, na.omit(future_data_census), type = 'response')
@@ -132,13 +132,13 @@ reg_predictions$Summerkill_forecast <- simulation_log_regress
 
 
 ```{r}
-ridge_summer_predictions <- future_data_census
+ridge_summer_predictions <- na.omit(select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID,- Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year))
 
 
 ridge_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
 
 
-newx<- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population + V1 + V2, ridge_summer_predictions) #why NEWX has to be a fake model and not just a dataset is unclear)
+newx<- model.matrix(Summerkill ~ . - Year - WBIC - site_id, ridge_summer_predictions) #why NEWX has to be a fake model and not just a dataset is unclear)
 
 
 ridge_summer_predictions$Prob <- as.vector(predict(ridge_regression_model_summer, newx= newx, type = 'response'))
@@ -166,11 +166,11 @@ ridge_summer_predictions$Summerkill_forecast <- simulation_log_regress
 
 ```{r}
 
-lasso_coords_summer_predictions <- future_data_census
+lasso_coords_summer_predictions <- na.omit(select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year))
 
 lasso_coords_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
 
-newx<- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif  + Schmidt + Cumulative_Above_0 + population + V1 + V2, lasso_coords_summer_predictions) #why NEWX has to be a fake model and not just a dataset is unclear)
+newx<- model.matrix(Summerkill ~ . - Year - WBIC - site_id, lasso_coords_summer_predictions) #why NEWX has to be a fake model and not just a dataset is unclear)
 
 
 
@@ -198,10 +198,13 @@ lasso_coords_summer_predictions$Summerkill_forecast <- simulation_log_regress
 
 set.seed(1234)
 
-train_indices <- sample(1:nrow(main_data_census), size = 528339 , replace = FALSE) # 4/5ths = 528339 #half = 330212
+train_indices <- sample(1:nrow(modeling_data), size = 528339 , replace = FALSE) # 4/5ths = 528339 #half = 330212
 train_data <- slice(modeling_data, train_indices) 
 test_data  <- slice(modeling_data, -train_indices)
 
+
+train_data_reg <- slice(main_data_census, train_indices) 
+test_data_reg  <- slice(main_data_census, -train_indices)
 
 #flds <- createFolds(main_data_census, k = 5, list = TRUE, returnTrain = TRUE)
 
@@ -319,7 +322,7 @@ testing for missclassification
 
 
 
-lasso_coords_regression_test <- model.matrix(Summerkill ~ . ,train_modeling_data)
+lasso_coords_regression_test <- model.matrix(Summerkill ~ . ,train_data)
 
 
 
@@ -355,7 +358,7 @@ lasso_coords_model_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
 making training model
 
 ```{r}
-reg_train <- glm(Summerkill ~  Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif+ Schmidt + population + V1 + V2 , family = 'binomial', data=train_data) 
+reg_train <- glm(Summerkill ~  Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + population + V1 + V2 , family = 'binomial', data=train_data_reg) 
 ``` 
 
 testing for missclassification
@@ -364,7 +367,7 @@ testing for missclassification
 
 
 
-probabilities <- predict(reg_train, test_data, type = 'response')
+probabilities <- predict(reg_train, test_data_reg, type = 'response')
 predicted_classes <- ifelse(probabilities > 0.5, 1, 0)
 observed_classes <- test_data$Summerkill
 mean(predicted_classes == observed_classes)
@@ -376,9 +379,9 @@ testing for average probability seperation
 
 ```{r}
 
-reg_predictions_test <- test_data
+reg_predictions_test <- test_data_reg
 
-reg_predictions_test$Prob <- predict(reg_train, test_data, type = 'response')
+reg_predictions_test$Prob <- predict(reg_train, test_data_reg, type = 'response')
 
 
 

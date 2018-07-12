@@ -9,11 +9,10 @@ output: html_document
 library(ggplot2)
 library(ggthemes)
 library(ggmap)
-library(car)
 library(gridExtra)
-library(scales)
-library(car)
-library(DescTools)
+#library(scales)
+#library(car)
+#library(DescTools)
 
 ```
 
@@ -206,7 +205,7 @@ t.test(ttest_winter$zscore_temp, mu = 0) # There are a lot of cold lakes without
 
 ```{r}
 
-# reg log ! !
+# ridge ! !
 
 plot1<-main_data %>%
   group_by(Year) %>%
@@ -225,7 +224,7 @@ ggplot(aes(x=factor(Year), y = Summerkill, fill = Temp)) +
   theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
 plot1
 
-plot2<-reg_predictions %>%
+plot2<-ridge_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%  
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
@@ -244,7 +243,7 @@ plot2
 
 
 
-plot3<- reg_predictions %>%
+plot3<- ridge_summer_predictions %>%
   filter(Year >2060) %>%
   group_by(Year) %>%
   summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
