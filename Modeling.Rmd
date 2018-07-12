@@ -39,7 +39,7 @@ plot(lambdatest, xvar = 'lambda')
 set.seed(1234)
 
 
-ridge_regression_lambda_summer <- cv.glmnet(x_ridge, y_ridge, family = "binomial", alpha = 0, lambda = c(10^-15, 10^-12, 10^-9)) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+ridge_regression_lambda_summer <- cv.glmnet(x_ridge, y_ridge, family = "binomial", alpha = 0, lambda = c(10^-5, 10^-3.5, 10^-4)) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 
 plot(ridge_regression_lambda_summer)
 
@@ -79,7 +79,7 @@ set.seed(1234)
 
 grid=10^seq(10,-15,length=100) # set lambda equal to for checking if more extensive lambda needed, no difference
 
-lasso_regression_coords_lambda_summer <- cv.glmnet(x_all, y_all, family = "binomial", alpha = 1, lambda = c(10^-15, 10^-12, 10^-9)) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+lasso_regression_coords_lambda_summer <- cv.glmnet(x_all, y_all, family = "binomial", alpha = 1, lambda = c(10^-7, 10^-5.5, 10^-4)) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
 
 plot(lasso_regression_coords_lambda_summer)
 
