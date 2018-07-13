@@ -121,7 +121,7 @@ coef(regression_model)
 
 
 ```{r}
-ridge_summer_predictions <- select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID,- Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year)
+ridge_summer_predictions <- select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID,- Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year, - Ice_Duration)
 
 
 ridge_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
@@ -155,7 +155,7 @@ ridge_summer_predictions$Summerkill_forecast <- simulation_log_regress
 
 ```{r}
 
-lasso_coords_summer_predictions <- select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year)
+lasso_coords_summer_predictions <- select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year, - Ice_Duration)
 
 lasso_coords_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
 
@@ -422,12 +422,18 @@ summary(change_MME_freq_future)
 # User Model Data
 
 ```{r user data}
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/')
 
+Lake_Names <-read.csv("Input_Data/Wi_Lakes_Maps .csv") 
+```
 
-Lake_Risk_Assesment <- lasso_summer_predictions %>% select(WBIC, site_id, Year, Prob, Mean_Surf_Temp) %>%
+```{r}
+Lake_Risk_Assesment <- merge(select(lasso_coords_summer_predictions,WBIC, site_id, Year, Prob, Mean_Surf_Temp), select(Lake_Names, OFFICIAL_NAME, WBIC)) %>%
   filter(Year > 2020) %>%
-  group_by(WBIC, site_id, Year) %>%
+  group_by(WBIC, site_id, Year, OFFICIAL_NAME) %>%
   summarise('Summerkill Probability' = sum(Prob), 'Mean Surface Temperature' = mean(Mean_Surf_Temp))
+
+Lake_Risk_Assesment <- distinct(Lake_Risk_Assesment)
 
 write.csv(Lake_Risk_Assesment, "Lake_Risk_Assessment.csv")
 
