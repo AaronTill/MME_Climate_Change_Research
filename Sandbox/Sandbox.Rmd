@@ -198,3 +198,42 @@ print(model)
 
 
 ```
+
+#Optional - Trend
+
+
+```{r looking at trend of predictions}
+
+change_MME_freq_future <- glm(Summerkill_forecast ~ Year, family = 'binomial', data=  )
+
+
+summary(change_MME_freq_future) 
+
+```
+
+
+# Lasso Just Winterkill - needs fixing
+
+```{r source - }
+
+x_winter <- model.matrix(Winterkill ~ Year + Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Season + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + Ice_Duration + V2, main_data) 
+
+
+y_winter <- ifelse(main_data$Winterkill == 1, 1, 0)
+
+```
+
+
+
+```{r observing lambdas and making final lasso regression model}
+set.seed(1234)
+
+
+lasso_regression_lambda_winter <- cv.glmnet(x_winter, y_winter, family = "binomial", alpha = 1) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+
+lasso_regression_model_winter <- glmnet(x_winter, y_winter, family = "binomial", alpha = 1, lambda = lasso_regression_lambda_winter$lambda.1se) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+#use lambda.1se instead of lambda.min for simpler but less accurate model
+
+coef(lasso_regression_model_winter)
+
+```

@@ -407,17 +407,7 @@ reg_predictions_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
 ```
 
 
-#Optional - Trend
 
-
-```{r looking at trend of predictions}
-
-change_MME_freq_future <- glm(Summerkill_forecast ~ Year, family = 'binomial', data=  )
-
-
-summary(change_MME_freq_future) 
-
-```
 
 # User Model Data
 
@@ -440,28 +430,81 @@ write.csv(Lake_Risk_Assesment, "Lake_Risk_Assessment.csv")
 ```
 
 
-# Lasso Just Winterkill - needs fixing
 
-```{r source - }
-
-x_winter <- model.matrix(Winterkill ~ Year + Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Season + Schmidt + Variance_After_Ice_30 + Cumulative_Above_0 + Ice_Duration + V2, main_data) 
+#Supplementary all MME predictions (with lasso)
 
 
-y_winter <- ifelse(main_data$Winterkill == 1, 1, 0)
+#Modeling
+
+
+```{r}
+
+mme_modeling_data <- select(main_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - Year, - GNIS_ID, - site_id, - WBIC, - Winterkill, - Infection, - Anthropogenic, - Summerkill, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - Ice_Duration) 
+ 
+
+```
+
+```{r}
+
+x_mme <- model.matrix(MME ~ . , mme_modeling_data)
+
+y_mme <- ifelse(mme_modeling_data$MME == 1, 1, 0)
+
+
+```
+
+```{r}
+
+lambdatest <- glmnet(x_mme, y_mme, family = "binomial", alpha = 1)
+plot(lambdatest, xvar = 'lambda')
+ 
+```
+
+```{r observing lambdas}
+set.seed(1234)
+
+
+lasso_mme_lambda_summer <- cv.glmnet(x_mme, y_mme, family = "binomial", alpha = 1, nfolds = 3) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+
+plot(lasso_mme_lambda_summer)
+
+```
+
+```{r making final lasso regression model}
+
+lasso_mme_model_summer <- glmnet(x_mme, y_mme, family = "binomial", alpha = 1, lambda = lasso_mme_lambda_summer$lambda.min) 
+# alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
+#use $lambda.1se instead of $lambda.min for simpler but less accurate model
+
+coef(lasso_mme_model_summer)
 
 ```
 
 
 
-```{r observing lambdas and making final lasso regression model}
+#Building
+
+
+```{r}
+
+lasso_MME_predictions <- select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year, - Ice_Duration)
+
+lasso_MME_predictions$MME <- 0 # Not sure why I am forced to make this
+
+newx<- model.matrix(MME ~ . - Year - WBIC - site_id, lasso_MME_predictions) #why NEWX has to be a fake model and not just a dataset is unclear)
+
+
+
+lasso_MME_predictions$Prob <- as.vector(predict(lasso_mme_model_summer, newx= newx, type = 'response'))
+
+```
+
+```{r forecasting}
 set.seed(1234)
 
+a <- lasso_MME_predictions$Prob
+simulation_log_regress <- rbinom(length(a), 1, prob = a)
 
-lasso_regression_lambda_winter <- cv.glmnet(x_winter, y_winter, family = "binomial", alpha = 1) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
-
-lasso_regression_model_winter <- glmnet(x_winter, y_winter, family = "binomial", alpha = 1, lambda = lasso_regression_lambda_winter$lambda.1se) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
-#use lambda.1se instead of lambda.min for simpler but less accurate model
-
-coef(lasso_regression_model_winter)
+lasso_MME_predictions$MME_forecast <- simulation_log_regress
 
 ```
