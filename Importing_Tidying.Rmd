@@ -19,7 +19,7 @@ library(lubridate)
 ```
 
 ```{r uploading and editing MME data}
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Data/')
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/')
 
 MME_raw <-read.csv("Fish Kill Data Updated 5_24_2018.csv")
 
@@ -35,7 +35,7 @@ MME_filtered <- MME_raw %>%
 
 
 ```{r uploading Thermal/NHD data and transforming Thermal}
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Data/')
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/')
 
 
 Thermal_Metrics <-read.csv("thermal_metrics.csv") 
@@ -166,7 +166,7 @@ main_data_no_spatial$Spring <- ifelse(main_data_no_spatial$Month == 'Mar' | main
 
 ```{r importing spatial data}
 
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Data/')
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/')
 
 
 dsn <- "lake_shapes"
@@ -236,7 +236,7 @@ https://www.census.gov/geo/maps-data/data/tiger-data.html
 
 ```{r importing spatial data}
 
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Data/')
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/')
 
 
 dsn3 <- "census_data"
@@ -290,7 +290,7 @@ main_data_census <- merge(main_data, census_w_frame_summary, full = TRUE)
 
 ```{r}
 
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Data/')
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/')
 
 
 raw_future_CSIRO <- read_tsv('ACCESS_thermal_metrics.tsv')
