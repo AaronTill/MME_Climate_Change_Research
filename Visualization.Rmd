@@ -390,22 +390,22 @@ color_seperated_lakes_of_wisconsin
 
 ```{r future}
 
-
+lasso_coords_summer_predictions$No_Event_Prob <- 1 - lasso_coords_summer_predictions$Prob
 
 summarized_lasso_summer_predictions_p2 <- lasso_coords_summer_predictions %>%
   filter(Year > 2030 & Year < 2070) %>%
   group_by(WBIC) %>%
-  summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
+  summarise(Prob = (1 - prod(No_Event_Prob)), V1 = mean(V1), V2 = mean(V2)) 
 
 summarized_lasso_summer_predictions_p3 <- lasso_coords_summer_predictions %>%
   filter(Year > 2070) %>%
   group_by(WBIC) %>%
-  summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
+  summarise(Prob = (1 - prod(No_Event_Prob)), V1 = mean(V1), V2 = mean(V2)) 
 
 summarized_lasso_summer_predictions_both <- lasso_coords_summer_predictions %>%
   filter(Year > 2020) %>%
   group_by(WBIC) %>%
-  summarise(Prob = sum(Prob), V1 = mean(V1), V2 = mean(V2)) 
+  summarise(Prob = (1 - prod(No_Event_Prob)), V1 = mean(V1), V2 = mean(V2)) 
 
 logreg_at_risk_lakes_of_wisconsin_period_2 <- ggmap(Wisconsin_map) + 
   geom_point(data = arrange(summarized_lasso_summer_predictions_p2, Prob), aes(x = V1, V2, color = Prob, alpha = Prob), size = 1)+
