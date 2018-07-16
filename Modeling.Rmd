@@ -409,25 +409,6 @@ reg_predictions_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
 
 
 
-# User Model Data
-
-```{r user data}
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/')
-
-Lake_Names <-read.csv("Input_Data/Wi_Lakes_Maps .csv") 
-```
-
-```{r}
-Lake_Risk_Assesment <- merge(select(lasso_coords_summer_predictions,WBIC, site_id, Year, Prob, Mean_Surf_Temp), select(Lake_Names, OFFICIAL_NAME, WBIC)) %>%
-  filter(Year > 2020) %>%
-  group_by(WBIC, site_id, Year, OFFICIAL_NAME) %>%
-  summarise('Summerkill Probability' = sum(Prob), 'Mean Surface Temperature' = mean(Mean_Surf_Temp))
-
-Lake_Risk_Assesment <- distinct(Lake_Risk_Assesment)
-
-write.csv(Lake_Risk_Assesment, "Lake_Risk_Assessment.csv")
-
-```
 
 
 
@@ -506,5 +487,27 @@ a <- lasso_MME_predictions$Prob
 simulation_log_regress <- rbinom(length(a), 1, prob = a)
 
 lasso_MME_predictions$MME_forecast <- simulation_log_regress
+
+```
+
+
+
+# User Model Data
+
+```{r user data}
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/')
+
+Lake_Names <-read.csv("Input_Data/Wi_Lakes_Maps .csv") 
+```
+
+```{r}
+Lake_Risk_Assesment <- merge(select(lasso_coords_summer_predictions,WBIC, site_id, Year, Prob, Mean_Surf_Temp), select(Lake_Names, OFFICIAL_NAME, WBIC)) %>%
+  filter(Year > 2020) %>%
+  group_by(WBIC, site_id, Year, OFFICIAL_NAME) %>%
+  summarise('Summerkill Probability' = sum(Prob), 'Mean Surface Temperature' = mean(Mean_Surf_Temp))
+
+Lake_Risk_Assesment <- distinct(Lake_Risk_Assesment)
+
+write.csv(Lake_Risk_Assesment, "Lake_Risk_Assessment.csv")
 
 ```
