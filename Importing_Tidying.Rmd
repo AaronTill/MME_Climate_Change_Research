@@ -391,14 +391,14 @@ future_data_census <- merge(future_data, census_w_frame_summary, full = TRUE)
 ```
 
 
-Snowfall Data
+# Snowfall Data
 
 
 
 ```{r}
 
   
-tidy_snow <- function(data_input, data_column, year, month) {
+tidy_snow <- function(data_input, year, month) {
   
   e <-extent(-92.9, -87, 42.4 , 46.9)
   a <- crop(raster(data_input),e)
@@ -407,17 +407,21 @@ tidy_snow <- function(data_input, data_column, year, month) {
   a2<- as.data.frame(a)
   
   data <- na.omit(cbind(a1, a2)) 
-  
-  data$V1 <- round(data$x, 1)
-  data$V2 <- round(data$y, 1)  
-    
+   
+  names(data) <- c('x', 'y', 'snow')
+
+  data$long_round <- round(data$x, 1)
+  data$lat_round <- round(data$y, 1)  
+
   data_output <- data %>%
-  group_by(V1, V2) %>%
-  summarise(snow = mean(data$substr(data_column, 6, 38)))
+  group_by(long_round, lat_round) %>%
+  summarise(Snow = mean(snow))
+    
   
   data_output$Year <- year
   data_output$Month <- month
   return(data_output)
+
 }
 
 
@@ -428,7 +432,7 @@ tidy_snow <- function(data_input, data_column, year, month) {
 
 setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/PRISM_Precip/')
 
-snow_data <- cbind(tidy_snow('2004/PRISM_ppt_stable_4kmM3_200401_asc.asc',PRISM_ppt_stable_4kmM3_200401_asc.asc, 2004, 'Jan'),
+snow_data <- rbind(tidy_snow('2004/PRISM_ppt_stable_4kmM3_200401_asc.asc',2004, 'Jan'),
                         tidy_snow('2004/PRISM_ppt_stable_4kmM3_200402_asc.asc', 2004, 'Feb'),
                         tidy_snow('2004/PRISM_ppt_stable_4kmM3_200412_asc.asc', 2004, 'Dec'),
                         tidy_snow('2005/PRISM_ppt_stable_4kmM3_200501_asc.asc', 2005, 'Jan'),
@@ -464,42 +468,5 @@ snow_data <- cbind(tidy_snow('2004/PRISM_ppt_stable_4kmM3_200401_asc.asc',PRISM_
 
 
 
-```{r}
-
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/PRISM_Precip/')
-
-snow_data <- cbind(tidy_snow('2004/PRISM_ppt_stable_4kmM3_200401_asc.asc',PRISM_ppt_stable_4kmM3_200401_asc, 2004, 'Jan'),
-                        tidy_snow('2004/PRISM_ppt_stable_4kmM3_200402_asc.asc', PRISM_ppt_stable_4kmM3_200402_asc, 2004, 'Feb'),
-                        tidy_snow('2004/PRISM_ppt_stable_4kmM3_200412_asc.asc',PRISM_ppt_stable_4kmM3_200412_asc, 2004, 'Dec'),
-                        tidy_snow('2005/PRISM_ppt_stable_4kmM3_200501_asc.asc',PRISM_ppt_stable_4kmM3_200501_asc, 2005, 'Jan'),
-                        tidy_snow('2005/PRISM_ppt_stable_4kmM3_200502_asc.asc',PRISM_ppt_stable_4kmM3_200502_asc, 2005, 'Feb'),
-                        tidy_snow('2005/PRISM_ppt_stable_4kmM3_200512_asc.asc',PRISM_ppt_stable_4kmM3_200512_asc, 2005, 'Dec'),
-                        tidy_snow('2006/PRISM_ppt_stable_4kmM3_200601_asc.asc',PRISM_ppt_stable_4kmM3_200601_asc, 2006, 'Jan'),
-                        tidy_snow('2006/PRISM_ppt_stable_4kmM3_200602_asc.asc',PRISM_ppt_stable_4kmM3_200602_asc, 2006, 'Feb'),
-                        tidy_snow('2006/PRISM_ppt_stable_4kmM3_200612_asc.asc',PRISM_ppt_stable_4kmM3_200612_asc, 2006, 'Dec'),
-                        tidy_snow('2007/PRISM_ppt_stable_4kmM3_200701_asc.asc',PRISM_ppt_stable_4kmM3_200701_asc, 2007, 'Jan'),
-                        tidy_snow('2007/PRISM_ppt_stable_4kmM3_200702_asc.asc',PRISM_ppt_stable_4kmM3_200702_asc, 2007, 'Feb'),
-                        tidy_snow('2007/PRISM_ppt_stable_4kmM3_200712_asc.asc',PRISM_ppt_stable_4kmM3_200712_asc, 2007, 'Dec'),
-                        tidy_snow('2008/PRISM_ppt_stable_4kmM3_200801_asc.asc',PRISM_ppt_stable_4kmM3_200801_asc, 2008, 'Jan'),
-                        tidy_snow('2008/PRISM_ppt_stable_4kmM3_200802_asc.asc',PRISM_ppt_stable_4kmM3_200802_asc, 2008, 'Feb'),
-                        tidy_snow('2008/PRISM_ppt_stable_4kmM3_200812_asc.asc',PRISM_ppt_stable_4kmM3_200812_asc, 2008, 'Dec'),
-                        tidy_snow('2009/PRISM_ppt_stable_4kmM3_200901_asc.asc',PRISM_ppt_stable_4kmM3_200901_asc, 2009, 'Jan'),
-                        tidy_snow('2009/PRISM_ppt_stable_4kmM3_200902_asc.asc',PRISM_ppt_stable_4kmM3_200902_asc, 2009, 'Feb'),
-                        tidy_snow('2009/PRISM_ppt_stable_4kmM3_200912_asc.asc',PRISM_ppt_stable_4kmM3_200912_asc, 2009, 'Dec'),
-                        tidy_snow('2010/PRISM_ppt_stable_4kmM3_201001_asc.asc',PRISM_ppt_stable_4kmM3_201001_asc, 2010, 'Jan'),
-                        tidy_snow('2010/PRISM_ppt_stable_4kmM3_201002_asc.asc',PRISM_ppt_stable_4kmM3_201002_asc, 2010, 'Feb'),
-                        tidy_snow('2010/PRISM_ppt_stable_4kmM3_201012_asc.asc',PRISM_ppt_stable_4kmM3_201012_asc, 2010, 'Dec'),
-                        tidy_snow('2011/PRISM_ppt_stable_4kmM3_201101_asc.asc',PRISM_ppt_stable_4kmM3_201101_asc, 2011, 'Jan'),
-                        tidy_snow('2011/PRISM_ppt_stable_4kmM3_201102_asc.asc',PRISM_ppt_stable_4kmM3_201102_asc, 2011, 'Feb'),
-                        tidy_snow('2011/PRISM_ppt_stable_4kmM3_201112_asc.asc',PRISM_ppt_stable_4kmM3_201112_asc, 2011, 'Dec'),
-                        tidy_snow('2012/PRISM_ppt_stable_4kmM3_201201_asc.asc',PRISM_ppt_stable_4kmM3_201201_asc, 2012, 'Jan'),
-                        tidy_snow('2012/PRISM_ppt_stable_4kmM3_201202_asc.asc',PRISM_ppt_stable_4kmM3_201202_asc, 2012, 'Feb'), 
-                        tidy_snow('2012/PRISM_ppt_stable_4kmM3_201212_asc.asc',PRISM_ppt_stable_4kmM3_201212_asc, 2012, 'Dec'),
-                        tidy_snow('2013/PRISM_ppt_stable_4kmM3_201301_asc.asc',PRISM_ppt_stable_4kmM3_201301_asc, 2013, 'Jan'),
-                        tidy_snow('2013/PRISM_ppt_stable_4kmM3_201302_asc.asc',PRISM_ppt_stable_4kmM3_201302_asc, 2013, 'Feb'), 
-                        tidy_snow('2013/PRISM_ppt_stable_4kmM3_201312_asc.asc',PRISM_ppt_stable_4kmM3_201312_asc, 2013, 'Dec'))
-
-
-```
 
 
