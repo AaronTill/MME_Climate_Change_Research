@@ -497,8 +497,9 @@ moran_Prob2 <- moran.test(summarized_lasso_summer_predictions_p2$Prob, weights_p
 moran_Prob3 <- moran.test(summarized_lasso_summer_predictions_p3$Prob, weights_p3)
 
 
-
-
+moran_MME
+moran_Prob2
+moran_Prob3
 
 ```
 
