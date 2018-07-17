@@ -14,6 +14,8 @@ library(gridExtra)
 #library(car)
 #library(DescTools)
 
+library(spdep)
+
 ```
 
 6 figures allowed
@@ -453,4 +455,50 @@ grid.arrange(color_seperated_lakes_of_wisconsin,logreg_at_risk_lakes_of_wisconsi
 
 ```
 
+#spatial analysis
+
+
+```{r}
+
+coordinates(summarized_main_data) <- c('V1', 'V2')
+
+coordinates(summarized_lasso_summer_predictions_p2) <- c('V1', 'V2')
+
+coordinates(summarized_lasso_summer_predictions_p3) <- c('V1', 'V2')
+
+
+```
+
+```{r neighbors}
+
+
+nb_p1 <- knn2nb(knearneigh(coordinates(summarized_main_data),longlat = TRUE, k = 2))
+nb_p2 <- knn2nb(knearneigh(coordinates(summarized_lasso_summer_predictions_p2),longlat = TRUE, k = 2))
+nb_p3 <- knn2nb(knearneigh(coordinates(summarized_lasso_summer_predictions_p3),longlat = TRUE, k = 2))
+
+```
+
+
+```{r weights}
+
+weights_p1 <- nb2listw(nb_p1)
+weights_p2 <- nb2listw(nb_p2)
+weights_p3 <- nb2listw(nb_p3)
+
+
+
+```
+
+
+```{r}
+
+moran_MME <- moran.test(summarized_main_data$MME, weights_p1)
+moran_Prob2 <- moran.test(summarized_lasso_summer_predictions_p2$Prob, weights_p2)
+moran_Prob3 <- moran.test(summarized_lasso_summer_predictions_p3$Prob, weights_p3)
+
+
+
+
+
+```
 
