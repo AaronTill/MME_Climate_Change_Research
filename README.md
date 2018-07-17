@@ -35,7 +35,7 @@ Files:
   The creation and testing of the Lasso, Ridge, basic Logistic models for Summerkill and all MMEs
   
 # Visualizations 
-(package loading: ggplot2, ggthemes, ggmap, gridExtra)
+(package loading: ggplot2, ggthemes, ggmap, gridExtra, spdep)
 
   Code for all visualizations in the paper including:
     
