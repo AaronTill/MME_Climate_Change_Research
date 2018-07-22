@@ -11,7 +11,7 @@ library(glmnet)
 ```
 
 ```{r}
-modeling_data <- select(main_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - Year, - GNIS_ID, - site_id, - WBIC, - Winterkill, - Infection, - Anthropogenic, - MME, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - Ice_Duration) 
+modeling_data <- dplyr::select(main_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - Year, - GNIS_ID, - site_id, - WBIC, - Winterkill, - Infection, - Anthropogenic, - MME, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - Ice_Duration) 
  
 ```
  
@@ -121,7 +121,7 @@ coef(regression_model)
 
 
 ```{r}
-ridge_summer_predictions <- select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID,- Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year, - Ice_Duration)
+ridge_summer_predictions <- dplyr::select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID,- Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year, - Ice_Duration)
 
 
 ridge_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
@@ -155,7 +155,7 @@ ridge_summer_predictions$Summerkill_forecast <- simulation_log_regress
 
 ```{r}
 
-lasso_coords_summer_predictions <- select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year, - Ice_Duration)
+lasso_coords_summer_predictions <- dplyr::select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year, - Ice_Duration)
 
 lasso_coords_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
 
@@ -224,26 +224,27 @@ test_data_reg  <- slice(main_data_census, -train_indices)
 ```
 
 
-#```{r} - Non Working
- - cross validation specifications
-cv_5 = trainControl(method = 'cv', number = 5)
+#```{r}
 
- - shrinkage model specificiations
+#cross validation specifications
+cv_5 = trainControl(method = 'cv', number = 3)
+
+#shrinkage model specificiations
 tuneGrid=expand.grid(.alpha=1,.lambda=seq(lasso_regression_lambda_summer$lambda.min))
 
- - lasso model with cross validation (times out here)
+# lasso model with cross validation (times out here)
 lasso_regression_k <- train(factor(Summerkill) ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population, data = main_data_census, trControl = cv_5, family = 'binomial' )
 
- - new dataset
+#new dataset
 lasso_model_test_k <- main_census
 
- - dummy model for creating predictions...not sure if this is correctly specified
+#dummy model for creating predictions...not sure if this is correctly specified
 newx <- model.matrix(Summerkill ~ Mean_Surf_Temp + Mean_Surf_Zscore + layer_dif + Schmidt + Cumulative_Above_0 + population, main_data_census)
 
- - making probabilities
+#making probabilities
 lasso_model_test_k$Prob <- as.vector(predict(lasso_regression_k), newx = newx, type = 'response')
   
-- comparing probabilities
+#comparing probabilities
 ggplot(lasso_model_test_k, aes(x = factor(Summerkill), y = log(Prob))) +
   geom_boxplot()
 
@@ -420,7 +421,7 @@ reg_predictions_test %>% group_by(Summerkill) %>% summarise(mean(Prob))
 
 ```{r}
 
-mme_modeling_data <- select(main_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - Year, - GNIS_ID, - site_id, - WBIC, - Winterkill, - Infection, - Anthropogenic, - Summerkill, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - Ice_Duration) 
+mme_modeling_data <- dplyr::select(main_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - Year, - GNIS_ID, - site_id, - WBIC, - Winterkill, - Infection, - Anthropogenic, - Summerkill, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - Ice_Duration) 
  
 
 ```
@@ -468,7 +469,7 @@ coef(lasso_mme_model_summer)
 
 ```{r}
 
-lasso_MME_predictions <- select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year, - Ice_Duration)
+lasso_MME_predictions <- dplyr::select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year, - Ice_Duration)
 
 lasso_MME_predictions$MME <- 0 # Not sure why I am forced to make this
 

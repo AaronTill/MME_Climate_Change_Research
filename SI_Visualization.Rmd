@@ -61,7 +61,7 @@ snow_anova_data <- snowfall %>%
   filter(Month == 'Jan' | Month == 'Feb' | Month == 'Dec') %>%
   filter(Winterkill == 1 |MME == 0)
 
-anova_snow <- aov(Snow ~ factor(Winterkill), snowfall)
+anova_snow <- aov(Snow ~ factor(Winterkill), snow_anova_data)
 summary(anova_snow)
 tuk <- TukeyHSD(anova_snow)
 tuk
