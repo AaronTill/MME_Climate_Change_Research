@@ -49,5 +49,11 @@ Files:
 # Sandbox 
   Unorganized scratchwork repository
   
+# Output Data
+
+  Original Fishkill Data - This is the original excel file used in the initial importiing tidying steps
+  
+  Lake Risk Assessment - A data file of at risk lakes
+  
  
     
