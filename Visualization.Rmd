@@ -27,15 +27,15 @@ Captions < 300 words
 
 # Boxplot of killtype mean temps
 
-```{r}
+```{r rerun combined_data_restricted before this if out of order and having problems}
 combined_data_restricted <- combined_data_restricted %>%
   mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'Summer Non-event')) %>%
   mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 =='SUMMERKILL'), 'Summerkill')) %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 =='Infectious Agent'), 'Infectious Agent'))
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 =='INFECTIOUS AGENT'), 'Infectious Agent'))
 
 
 
-combined_data_restricted$sig <- ifelse(combined_data_restricted$Cause.Category.4 == 'SUMMERKILL', 'p<.05', 'p>.05')
+combined_data_restricted$sig <- ifelse(combined_data_restricted$Cause.Category.4 == 'Summerkill', 'p<.05', 'p>.05')
 combined_data_restricted$sig <- factor(combined_data_restricted$sig, levels = c('p>.05', 'p<.05'))
 
 boxplot1 <- mean_surf(combined_data_restricted) %>%
@@ -44,8 +44,10 @@ boxplot1 <- mean_surf(combined_data_restricted) %>%
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +  
   ylab('Mean Surface Temperature')+
-    theme(text = element_text(size=10))+
-
+  theme(text = element_text(size=10),
+    legend.justification = c(1, 0), 
+    legend.position = c(0.35, 0.25),
+    legend.box.margin=margin(c(50,50,50,50)))+
   xlab(NULL)+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig)) + 
   ggtitle('A') +
@@ -57,6 +59,7 @@ boxplot2 <- mean_surf(combined_data_restricted) %>%
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
   ylab('Z-score') +
+  guides(fill = FALSE) +
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig)) +
     theme(text = element_text(size=10))+
 
@@ -111,14 +114,15 @@ mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' |
 
 ```{r winterkill boxplots}
 combined_data_restricted <- combined_data_restricted %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMER NON-EVENT'))
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'Summer Non-event'))
 
 combined_data_restricted_winter <- combined_data_restricted %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'SUMMER NON-EVENT'), 'WINTER NON-EVENT')) 
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'Summer Non-event'), 'Winter Non-event'))  %>%
+    mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'WINTERKILL'), 'Winterkill'))
 
 boxplot1_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT') %>%   
+  filter(Cause.Category.4 == 'Winterkill' | Cause.Category.4 == 'Winter Non-event') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +
   ylab(NULL)+
@@ -131,7 +135,7 @@ ggplot(aes(y = temperature,x = Cause.Category.4)) +
 
 boxplot2_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT') %>%   
+  filter(Cause.Category.4 == 'Winterkill' | Cause.Category.4 == 'Winter Non-event') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
   xlab('Category of Killtype')+
@@ -187,7 +191,7 @@ t.test(ttest_data_winter_all$zscore_temp, mu = 0)
 ```{r ultimate boxplots}
 
 
-combined_data_restricted$Cause.Category.4 <- factor(combined_data_restricted$Cause.Category.4, levels = c('SUMMERKILL', 'NON-EVENT', 'INFECTIOUS AGENT', 'WINTERKILL', 'ANTHROPOGENIC CONDITION'))
+#combined_data_restricted$Cause.Category.4 <- factor(combined_data_restricted$Cause.Category.4, levels = c('SUMMERKILL', 'NON-EVENT', 'INFECTIOUS AGENT', 'WINTERKILL', 'ANTHROPOGENIC CONDITION'))
 
 
 
