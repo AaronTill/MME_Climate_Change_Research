@@ -227,7 +227,6 @@ setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research
 dsn2 <- "wisconsin_only_shape"
 ogrListLayers(dsn2)
 spatial_w <- readOGR(dsn2, layer = 'wisco_only')
-spatial_outline_us
 
 ```
 
@@ -433,7 +432,7 @@ tidy_snow <- function(data_input, year, month) {
 
 ```{r}
 
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/PRISM_Precip/')
+setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/Prism Data/PRISM_Precip/')
 
 snow_data <- rbind(tidy_snow('2004/PRISM_ppt_stable_4kmM3_200401_asc.asc',2004, 'Jan'),
                         tidy_snow('2004/PRISM_ppt_stable_4kmM3_200402_asc.asc', 2004, 'Feb'),

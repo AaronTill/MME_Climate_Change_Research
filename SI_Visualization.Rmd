@@ -7,30 +7,36 @@ output: html_document
 
 ```{r Infectious Agent Yearly Test}
 
-combined_data_restricted$sig_all <- ifelse(combined_data_restricted$Cause.Category.4 == 'WINTERKILL', 'p<.05', 'p>.05')
+
+combined_data_restricted <- combined_data_restricted %>%
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'INFECTIOUS AGENT'), 'Infectious Agent'))  %>%
+    mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'ANTHROPOGENIC CONDITION'), 'Anthropogenic Condition'))%>%
+    mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'WINTERKILL'), 'Winterkill'))
+
+combined_data_restricted$sig_all <- ifelse(combined_data_restricted$Cause.Category.4 == 'Winterkill', 'p<.05', 'p>.05')
 combined_data_restricted$sig_all <- factor(combined_data_restricted$sig_all, levels = c('p>.05', 'p<.05'))
 
 ultimate_zscore_boxplot <- mean_surf(combined_data_restricted) %>%
-  filter(Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'ANTHROPOGENIC CONDITION' ) %>%
+  filter(Cause.Category.4 == 'Infectious Agent' | Cause.Category.4 == 'Winterkill' | Cause.Category.4 == 'Anthropogenic Condition' ) %>%
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
-  ylab('Zscore All Seasons')+
+  ylab('Z-score All Seasons')+
   xlab('Category of Killtype')+
   xlab(NULL) +
   geom_hline(yintercept = 0, alpha = 0.5) + 
   geom_boxplot(outlier.alpha = 0.1,aes(fill = sig_all)) + 
-  scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'T-test'))
+  scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = NULL))
 
 ultimate_zscore_boxplot
 
 
-ttest_data_all_anthro <- filter(mean_surf(combined_data_restricted), Cause.Category.4 == 'ANTHROPOGENIC CONDITION')
+ttest_data_all_anthro <- filter(mean_surf(combined_data_restricted), Cause.Category.4 == 'Anthropogenic Condition')
 t.test(ttest_data_all_anthro$zscore_temp, mu = 0)
 
-ttest_data_infectious_all<- filter(mean_surf(combined_data_restricted), Cause.Category.4 == 'INFECTIOUS AGENT')
+ttest_data_infectious_all<- filter(mean_surf(combined_data_restricted), Cause.Category.4 == 'Infectious Agent')
 t.test(ttest_data_infectious_all$zscore_temp, mu = 0)
 
-ttest_data_all <- filter(mean_surf(combined_data_restricted), Cause.Category.4 == 'WINTERKILL')
+ttest_data_all <- filter(mean_surf(combined_data_restricted), Cause.Category.4 == 'Winterkill')
 t.test(ttest_data_all$zscore_temp, mu = 0)
 
 
@@ -53,7 +59,7 @@ ggplot(aes(y =Snow,x = factor(Winterkill))) +
   ylab('Precipitation')+
   xlab('Winterkill')+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig_ice)) + 
-  scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'ANOVA'))
+  scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = NULL))
 
 snow_boxplot
 
@@ -71,30 +77,31 @@ tuk
 ```{r ice duration winterkill}
 
 combined_data_restricted <- combined_data_restricted %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'SUMMER NON-EVENT'))
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(is.na(Cause.Category.4)), 'Summer Non-event'))
 
 combined_data_restricted_winter <- combined_data_restricted %>%
-  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'SUMMER NON-EVENT'), 'WINTER NON-EVENT')) 
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'Summer Non-event'), 'Winter Non-event')) %>%
+  mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'WINTERKILL'), 'Winterkill')) 
 
-combined_data_restricted_winter$sig_ice <- ifelse(combined_data_restricted_winter$Cause.Category.4 == 'WINTERKILL', 'p<.05', 'p>.05')
+combined_data_restricted_winter$sig_ice <- ifelse(combined_data_restricted_winter$Cause.Category.4 == 'Winterkill', 'p<.05', 'p>.05')
 combined_data_restricted_winter$sig_ice <- factor(combined_data_restricted_winter$sig_ice, levels = c('p>.05', 'p<.05'))
 
 ice_duration_boxplot <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Jan' | Month == 'Feb' | Month == 'Dec' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT' ) %>%
+  filter(Cause.Category.4 == 'Winterkill' | Cause.Category.4 == 'Winter Non-event' ) %>%
 ggplot(aes(y = ice_duration_days,x = Cause.Category.4)) +
   theme_tufte() +
   ylab('Ice Duration (Days)')+
   xlab('Category of Killtype')+
   xlab(NULL) +
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig_ice)) + 
-  scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = 'ANOVA'))
+  scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = NULL))
 
 ice_duration_boxplot
 
 ice_anova_data <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Jan' | Month == 'Feb' | Month == 'Dec' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'WINTERKILL' | Cause.Category.4 == 'WINTER NON-EVENT')
+  filter(Cause.Category.4 == 'Winterkill' | Cause.Category.4 == 'Winter Non-event')
 
 anova_ice <- aov(ice_duration_days ~ Cause.Category.4, ice_anova_data)
 summary(anova_ice)
