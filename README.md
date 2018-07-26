@@ -21,7 +21,7 @@ Files:
 
   The steps for importing and tidying various datasets
     
-    1) Wisconsin MME Dataset (available in data folder)
+    1) Wisconsin MME Dataset (available as Original_Fishkill_XXXX in data_output folder)
     
     2) US census data for wisconsin census blocks (https://www.census.gov/geo/maps-data/data/tiger-data.html)
     
@@ -29,10 +29,12 @@ Files:
     
     4) Data on modeled thermal temperatues (Winslow et al., 2017 - Concurrent = NLDAS and Future = ASC)
     
+    5) Lake names for building Lake_Assessment.CSV (Available as Wisonsin_Lakes_Maps.xslx.in output data). 
+    
 # Modeling 
 (package loading: caret, glmnet)
 
-  The creation and testing of the Lasso, Ridge, basic Logistic models for Summerkill and all MMEs
+  The creation and testing of the Lasso, Ridge, basic Logistic models for Summerkill. 
   
 # Visualizations 
 (package loading: ggplot2, ggthemes, ggmap, gridExtra, spdep)
@@ -46,14 +48,15 @@ Files:
 # SI Visualizations
   All visualizations included in papers supplementary information section
   
-# Sandbox 
-  Unorganized scratchwork repository
+
   
 # Output Data
 
   Original Fishkill Data - This is the original excel file used in the initial importiing tidying steps
   
   Lake Risk Assessment - A data file of at risk lakes
+  
+  Wisonsin_Lakes_Maps - Lake names
   
  
     
