@@ -23,7 +23,9 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   ylab('Z-score All Seasons')+
   xlab('Category of Killtype')+
   xlab(NULL) +
-  geom_hline(yintercept = 0, alpha = 0.5) + 
+  geom_hline(yintercept = 0, alpha = 0.5) +
+  theme(axis.line = element_line(colour = "black", 
+                      size = 0.5, linetype = "solid"))+
   geom_boxplot(outlier.alpha = 0.1,aes(fill = sig_all)) + 
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = NULL))
 
@@ -41,39 +43,6 @@ t.test(ttest_data_all$zscore_temp, mu = 0)
 
 
 ```
-
-
-```{r snowfall winterkill}
-
-snowfall <- merge(main_data_census, snow_data)
-
-snowfall$sig_ice <- ifelse(snowfall$Winterkill == 1, 'p>.05', 'p>.05')
-
-snowfall$sig_ice <- factor(snowfall$sig_ice, levels = c('p>.05', 'p<.05'))
-
-snow_boxplot <- snowfall %>%
-  filter(Month == 'Jan' | Month == 'Feb' | Month == 'Dec') %>%
-  filter(Winterkill == 1 | MME == 0 ) %>%
-ggplot(aes(y =Snow,x = factor(Winterkill))) +
-  theme_tufte() +
-  ylab('Precipitation')+
-  xlab('Winterkill')+
-  geom_boxplot(outlier.alpha = 0.1, aes(fill = sig_ice)) + 
-  scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = NULL))
-
-snow_boxplot
-
-snow_anova_data <- snowfall %>%
-  filter(Month == 'Jan' | Month == 'Feb' | Month == 'Dec') %>%
-  filter(Winterkill == 1 |MME == 0)
-
-anova_snow <- aov(Snow ~ factor(Winterkill), snow_anova_data)
-summary(anova_snow)
-tuk <- TukeyHSD(anova_snow)
-tuk
-```
-
-
 ```{r ice duration winterkill}
 
 combined_data_restricted <- combined_data_restricted %>%
@@ -94,6 +63,8 @@ ggplot(aes(y = ice_duration_days,x = Cause.Category.4)) +
   ylab('Ice Duration (Days)')+
   xlab('Category of Killtype')+
   xlab(NULL) +
+    theme(axis.line = element_line(colour = "black", 
+                      size = 0.5, linetype = "solid"))+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig_ice)) + 
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = NULL))
 
@@ -109,6 +80,41 @@ tuk <- TukeyHSD(anova_ice)
 tuk
 
 ```
+
+```{r snowfall winterkill}
+
+snowfall <- merge(main_data_census, snow_data)
+
+snowfall$sig_ice <- ifelse(snowfall$Winterkill == 1, 'p>.05', 'p>.05')
+
+snowfall$sig_ice <- factor(snowfall$sig_ice, levels = c('p>.05', 'p<.05'))
+
+snow_boxplot <- snowfall %>%
+  filter(Month == 'Jan' | Month == 'Feb' | Month == 'Dec') %>%
+  filter(Winterkill == 1 | MME == 0 ) %>%
+ggplot(aes(y =Snow,x = factor(Winterkill))) +
+  theme_tufte() +
+  ylab('Precipitation')+
+  xlab('Winterkill')+
+  geom_boxplot(outlier.alpha = 0.1, aes(fill = sig_ice)) + 
+  theme(axis.line = element_line(colour = "black", 
+                      size = 0.5, linetype = "solid"))+
+  scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = NULL))
+
+snow_boxplot
+
+snow_anova_data <- snowfall %>%
+  filter(Month == 'Jan' | Month == 'Feb' | Month == 'Dec') %>%
+  filter(Winterkill == 1 |MME == 0)
+
+anova_snow <- aov(Snow ~ factor(Winterkill), snow_anova_data)
+summary(anova_snow)
+tuk <- TukeyHSD(anova_snow)
+tuk
+```
+
+
+
 
 # MME Distribution
 

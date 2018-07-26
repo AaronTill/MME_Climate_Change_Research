@@ -47,7 +47,9 @@ ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme(text = element_text(size=10),
     legend.justification = c(1, 0), 
     legend.position = c(0.35, 0.25),
-    legend.box.margin=margin(c(50,50,50,50)))+
+    legend.box.margin=margin(c(50,50,50,50)),
+    axis.line = element_line(colour = "black", 
+                      size = 0.5, linetype = "solid"))+
   xlab(NULL)+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig)) + 
   ggtitle('A') +
@@ -60,6 +62,8 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
   ylab('Z-score') +
   guides(fill = FALSE) +
+  theme(axis.line = element_line(colour = "black", 
+                      size = 0.5, linetype = "solid"))+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig)) +
     theme(text = element_text(size=10))+
 
@@ -127,7 +131,9 @@ ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +
   ylab(NULL)+
   xlab(NULL)+
-  theme(text = element_text(size=10))+
+  theme(text = element_text(size=10),
+    axis.line = element_line(colour = "black", 
+                      size = 0.5, linetype = "solid"))+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig))+ 
   guides(fill = FALSE)+ 
   ggtitle('B') +
@@ -140,7 +146,9 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
   xlab('Category of Killtype')+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig)) +
-  theme(text = element_text(size=10))+
+  theme(text = element_text(size=10),
+    axis.line = element_line(colour = "black", 
+                      size = 0.5, linetype = "solid"))+
   xlab(NULL) +
   ylab(NULL)+
   ylim(-2.5,2) +
@@ -195,8 +203,8 @@ t.test(ttest_data_winter_all$zscore_temp, mu = 0)
 
 
 
-xbox <- grid.arrange(boxplot1,boxplot1_winter,ncol = 2, widths = c(6, 3.4))
-ybox <- grid.arrange(boxplot2,boxplot2_winter, ncol = 2, widths = c(6, 3.4))
+xbox <- grid.arrange(boxplot1,boxplot1_winter,ncol = 2, widths = c(6, 3.6))
+ybox <- grid.arrange(boxplot2,boxplot2_winter, ncol = 2, widths = c(6, 3.6))
 
 grid.arrange(xbox, ybox)
 
@@ -242,12 +250,12 @@ plot1
 plot2<-lasso_coords_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%  
   group_by(Year) %>%
-  summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
+  summarise(Summerkill = sum(Prob), Temp = mean(Mean_Surf_Temp) ) %>%
 ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   geom_bar(stat ='identity')+
   scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
-  ylab("Forecasted Summerkills")+
+  ylab("Expected Summerkills")+
   xlab(NULL) +
   scale_x_discrete()+
   guides(fill=FALSE) +
@@ -261,7 +269,7 @@ plot2
 plot3<- lasso_coords_summer_predictions %>%
   filter(Year >2060) %>%
   group_by(Year) %>%
-  summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp) ) %>%
+  summarise(Summerkill = sum(Prob), Temp = mean(Mean_Surf_Temp) ) %>%
 ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   geom_bar(stat ='identity')+
   scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
@@ -299,31 +307,29 @@ main_data %>%
 lasso_coords_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%
   group_by(Year) %>%
-  summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp)) %>%
+  summarise(Summerkill = sum(Prob), Temp = mean(Mean_Surf_Temp)) %>%
   arrange(desc(Summerkill))
 
 lasso_coords_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%
-  filter(Summerkill_forecast == 1) %>%
   group_by(Year) %>%
-  summarise(n = n())%>%
-  arrange(n)
-    #mean = n()/19
+  summarise(Summerkill = sum(Prob)) %>%
+  arrange(Summerkill)
+    #mean = Summerkill/19
 
 
 lasso_coords_summer_predictions %>%
   filter(Year >2060) %>%
   group_by(Year) %>%
-  summarise(Summerkill = sum(Summerkill_forecast), Temp = mean(Mean_Surf_Temp)) %>%
+  summarise(Summerkill = sum(Prob), Temp = mean(Mean_Surf_Temp)) %>%
   arrange(desc(Summerkill))
 
 lasso_coords_summer_predictions %>%
   filter(Year >2060) %>%
-  filter(Summerkill_forecast == 1) %>%
   group_by(Year) %>%
-  summarise(n = n()) %>%
-  arrange(n)
-    #mean = n()/19
+  summarise(Summerkill = sum(Prob)) %>%
+  arrange(Summerkill)
+
 
 ```
 
