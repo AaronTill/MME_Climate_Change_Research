@@ -2,7 +2,7 @@
 
 This project contains the code for a publication in XXXXXXX 
 
-# Publication Title: 'Thermal Extremes Drive Die-offs in North Temperate Lakes'
+# Publication Title: 'Thermal Extremes Drive Fish Die-offs in North Temperate Lakes'
 
   Authors: Aaron Till, Andrew L. Rypel, Andrew Bray, Samuel B. Fey
   
