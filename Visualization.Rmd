@@ -13,7 +13,6 @@ library(gridExtra)
 library(scales)
 library(car)
 library(DescTools)
-
 library(spdep)
 
 ```

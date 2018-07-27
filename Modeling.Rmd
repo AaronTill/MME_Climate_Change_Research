@@ -51,7 +51,7 @@ plot(ridge_regression_lambda_summer)
 
 ridge_regression_model_summer <- glmnet(x_ridge, y_ridge, family = "binomial", alpha = 0, lambda = ridge_regression_lambda_summer$lambda.1se) 
 # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
-#use $lambda.1se instead of $lambda.min for simpler but less accurate model
+#use $lambda.1se instead of $lambda.min for simpler but less flexible model
 
 coef(ridge_regression_model_summer)
 
@@ -93,7 +93,7 @@ plot(lasso_regression_coords_lambda_summer)
 
 lasso_regression_coords_model_summer <- glmnet(x_all, y_all, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.1se) 
 # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
-#use $lambda.1se instead of $lambda.min for simpler but less accurate model
+#use $lambda.1se instead of $lambda.min for simpler but less flexible model
 
 coef(lasso_regression_coords_model_summer)
 
@@ -247,7 +247,7 @@ making training model
 
 ```{r}
 ridge_regression_train <- glmnet(x_train, y_train, family = "binomial", alpha = 0, lambda = ridge_regression_lambda_summer$lambda.1se) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
-#use lambda.1se instead of lambda.min for simpler but less accurate model
+#use lambda.1se instead of lambda.min for simpler but less flexible model
 #can use lambda from regular model
 
 #coef(lasso_regression_model)
@@ -308,7 +308,7 @@ making training model
 
 ```{r}
 lasso_coords_regression_train <- glmnet(x_train, y_train, family = "binomial", alpha = 1, lambda = lasso_regression_coords_lambda_summer$lambda.1se) # alpha = 0 ridge, 1 for lasso, between 0 and 1 for elastic 
-#use lambda.1se instead of lambda.min for simpler but less accurate model
+#use lambda.1se instead of lambda.min for simpler but less flexible model
 #can use lambda from regular model
 
 #coef(lasso_regression_model)
