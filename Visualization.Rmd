@@ -80,7 +80,7 @@ grid.arrange(boxplot1, boxplot2)
 
 #make sure to run combined_dat_restricted and the above chunk before this or error will occure, not sure why
 
-anova_data <- mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter((Cause.Category.4 == 'INFECTIOUS AGENT' | Cause.Category.4 == 'SUMMERKILL' | Cause.Category.4 == 'SUMMER NON-EVENT'))
+anova_data <- mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter((Cause.Category.4 == 'Infectious Agent' | Cause.Category.4 == 'Summerkill' | Cause.Category.4 == 'Summer Non-event'))
 
 
 
@@ -90,7 +90,7 @@ leveneTest(y = temperature ~ Cause.Category.4, data = anova_data, center = mean)
 welch_cause_type <- oneway.test(temperature ~ Cause.Category.4, anova_data)
 print(welch_cause_type)
 
-DunnettTest(temperature ~ factor(Cause.Category.4), data = anova_data, control = 'SUMMER NON-EVENT')
+DunnettTest(temperature ~ factor(Cause.Category.4), data = anova_data, control = 'Summer Non-event')
 ```
 ```{r summer Zscore Anova}
 #leveneTest(y = zscore_temp ~ Cause.Category.4, data = anova_data)
@@ -100,18 +100,18 @@ DunnettTest(temperature ~ factor(Cause.Category.4), data = anova_data, control =
 #tuk <- TukeyHSD(anova_zscore_cause_Type)
 #tuk
 
-ttest_data_summerkill <- filter(anova_data, Cause.Category.4 == 'SUMMERKILL')
+ttest_data_summerkill <- filter(anova_data, Cause.Category.4 == 'Summerkill')
 t.test(ttest_data_summerkill$zscore_temp, mu = 0)
 
 
-ttest_data_infectious_summer<- filter(anova_data, Cause.Category.4 == 'INFECTIOUS AGENT')
+ttest_data_infectious_summer<- filter(anova_data, Cause.Category.4 == 'Infectious Agent')
 t.test(ttest_data_infectious_summer$zscore_temp, mu = 0)
 
-ttest_data_summer_nonevent<- filter(mean_surf(anova_data), Cause.Category.4 == 'SUMMER NON-EVENT')
+ttest_data_summer_nonevent<- filter(mean_surf(anova_data), Cause.Category.4 == 'Summer Non-event')
 t.test(ttest_data_summer_nonevent$zscore_temp, mu = 0)
 
 #number of above 0 zscore for summerkill
-mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter(Cause.Category.4 == 'SUMMERKILL') %>% group_by(zscore_temp > 0) %>% summarise(n())
+mean_surf(combined_data_restricted) %>% filter(Month == 'Jul' | Month == 'Jun' | Month == 'Aug' | Month == 'Sep') %>% filter(Cause.Category.4 == 'Summerkill') %>% group_by(zscore_temp > 0) %>% summarise(n())
 
 ```
 
@@ -241,9 +241,12 @@ ggplot(aes(x=factor(Year), y = Summerkill, fill = Temp)) +
   xlab(NULL) +
   scale_x_discrete()+
   guides(fill=FALSE) +
+  
   theme_tufte()+
   ylim(0,110) +
-  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
+  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left',
+    text = element_text(size=10)) +
+  ggtitle('A')
 plot1
 
 plot2<-lasso_coords_summer_predictions %>%
@@ -260,7 +263,9 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   guides(fill=FALSE) +
   theme_tufte()+
   ylim(0,110) +
-  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left') 
+  ggtitle('B') +
+  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left',
+    text = element_text(size=10)) 
 plot2
 
 
@@ -278,7 +283,9 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   scale_x_discrete()+
   #guides(fill=FALSE) +
   theme_tufte()+
-  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'right') +
+  ggtitle('C') +
+  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'right',
+    text = element_text(size=10)) +
   ylim(0,110) 
 plot3
 

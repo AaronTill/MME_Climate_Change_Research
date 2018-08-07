@@ -319,8 +319,8 @@ future_gathered <- future_untidied %>%
   mutate(zscore_temp = (temperature - ave(temperature, site_id))/ sd(temperature)) %>%
   ungroup(metric, depth, Month)
 
-future_gathered <- future_gathered %>% #Remove this line to compare concurrent forecasting with reality
-  filter(year >= 2041)
+#future_gathered <- future_gathered %>% #Remove this line to compare concurrent forecasting with reality
+ # filter(year >= 2041)
 
 ```
 
