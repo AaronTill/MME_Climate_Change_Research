@@ -24,7 +24,8 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   xlab('Category of Killtype')+
   xlab(NULL) +
   geom_hline(yintercept = 0, alpha = 0.5) +
-  theme(axis.line = element_line(colour = "black", 
+  theme(text = element_text(size=13),axis.text = element_text(size=13),
+        axis.line = element_line(colour = "black", 
                       size = 0.5, linetype = "solid"))+
   geom_boxplot(outlier.alpha = 0.1,aes(fill = sig_all)) + 
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = NULL))
@@ -63,7 +64,8 @@ ggplot(aes(y = ice_duration_days,x = Cause.Category.4)) +
   ylab('Ice Duration (Days)')+
   xlab('Category of Killtype')+
   xlab(NULL) +
-    theme(axis.line = element_line(colour = "black", 
+    theme(text = element_text(size=13),axis.text = element_text(size=13),
+          axis.line = element_line(colour = "black", 
                       size = 0.5, linetype = "solid"))+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig_ice)) + 
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = NULL))
@@ -97,7 +99,8 @@ ggplot(aes(y =Snow,x = factor(Winterkill))) +
   ylab('Precipitation')+
   xlab('Winterkill')+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig_ice)) + 
-  theme(axis.line = element_line(colour = "black", 
+  theme(text = element_text(size=13),axis.text = element_text(size=13),
+        axis.line = element_line(colour = "black", 
                       size = 0.5, linetype = "solid"))+
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = NULL))
 
