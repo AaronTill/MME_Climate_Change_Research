@@ -42,13 +42,17 @@ boxplot1 <- mean_surf(combined_data_restricted) %>%
   filter(Cause.Category.4 == 'Summerkill' | Cause.Category.4 == 'Summer Non-event' | Cause.Category.4 == 'Infectious Agent') %>%   
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +  
-  ylab('Mean Surface Temperature')+
-  theme(text = element_text(size=10),
+  ylab('Mean Surf. Temp. (Celsius)')+
+  theme(text = element_text(size=13),
+    axis.text = element_text(size=13),
     legend.justification = c(1, 0), 
     legend.position = c(0.35, 0.25),
     legend.box.margin=margin(c(50,50,50,50)),
     axis.line = element_line(colour = "black", 
-                      size = 0.5, linetype = "solid"))+
+                      size = 0.5, linetype = "solid"),
+    axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
   xlab(NULL)+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig)) + 
   ggtitle('A') +
@@ -59,12 +63,13 @@ boxplot2 <- mean_surf(combined_data_restricted) %>%
   filter(Cause.Category.4 == 'Summerkill' | Cause.Category.4 == 'Infectious Agent' | Cause.Category.4 == 'Summer Non-event') %>%   
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
-  ylab('Z-score') +
+  ylab('Z-score (Celsius)') +
   guides(fill = FALSE) +
-  theme(axis.line = element_line(colour = "black", 
+  theme(text = element_text(size=13), 
+        axis.line = element_line(colour = "black", 
                       size = 0.5, linetype = "solid"))+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig)) +
-    theme(text = element_text(size=10))+
+    theme(axis.text = element_text(size=13))+
 
   xlab(NULL) +
   geom_hline(yintercept = 0, alpha = 0.5)+ 
@@ -125,14 +130,18 @@ combined_data_restricted_winter <- combined_data_restricted %>%
 
 boxplot1_winter <- mean_surf(combined_data_restricted_winter) %>%
   filter(Month == 'Dec' | Month == 'Jan' | Month == 'Feb' | Month == 'Mar') %>%
-  filter(Cause.Category.4 == 'Winterkill' | Cause.Category.4 == 'Winter Non-event') %>%   
+  filter(Cause.Category.4 == 'Winterkill' | Cause.Category.4 == 'Winter Non-event') %>%
 ggplot(aes(y = temperature,x = Cause.Category.4)) +
   theme_tufte() +
   ylab(NULL)+
   xlab(NULL)+
-  theme(text = element_text(size=10),
+  theme(text = element_text(size=13), 
+        axis.text = element_text(size = 13),
     axis.line = element_line(colour = "black", 
-                      size = 0.5, linetype = "solid"))+
+                      size = 0.5, linetype = "solid"), 
+    axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig))+ 
   guides(fill = FALSE)+ 
   ggtitle('B') +
@@ -145,7 +154,8 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
   xlab('Category of Killtype')+
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig)) +
-  theme(text = element_text(size=10),
+  theme(text = element_text(size=13),
+        axis.text = element_text(size = 13),
     axis.line = element_line(colour = "black", 
                       size = 0.5, linetype = "solid"))+
   xlab(NULL) +
@@ -227,7 +237,12 @@ t.test(ttest_winter$zscore_temp, mu = 0) # There are a lot of cold lakes without
 
 ```{r}
 
-# lasso ! !
+# lasso ! !=
+labels1 <- seq(2004, 2013, length.out=4)
+labels2 <- seq(2041, 2059, length.out=10)
+labels3 <- seq(2081, 2099, length.out=10)
+# and set breaks and labels
+
 
 plot1<-main_data %>%
   group_by(Year) %>%
@@ -237,16 +252,17 @@ ggplot(aes(x=factor(Year), y = Summerkill, fill = Temp)) +
   geom_bar(stat ='identity')+
   scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
-  ylab("Actual Summerkills")+
+  ylab("Total Observed Summerkills")+
   xlab(NULL) +
-  scale_x_discrete()+
   guides(fill=FALSE) +
-  
   theme_tufte()+
   ylim(0,110) +
-  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left',
-    text = element_text(size=10), plot.title = element_text(margin = margin(b = -50))) +
-  ggtitle('A')
+  theme(axis.text.x=element_text(angle=90), 
+        legend.position = 'left',
+    text = element_text(size=13), 
+    plot.title = element_text(margin = margin(b = -50))) +
+  ggtitle('A') +
+  scale_x_discrete(breaks=labels1, labels=as.character(labels1))
 plot1
 
 plot2<-lasso_coords_summer_predictions %>%
@@ -257,15 +273,15 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   geom_bar(stat ='identity')+
   scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
-  ylab("Expected Summerkills")+
+  ylab("Total Predicted Summerkills")+
   xlab(NULL) +
-  scale_x_discrete()+
   guides(fill=FALSE) +
   theme_tufte()+
   ylim(0,110) +
   ggtitle('B') +
-  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'left',
-    text = element_text(size=10), plot.title = element_text(margin = margin(b = -50))) 
+  theme(axis.text.x=element_text(angle=90), legend.position = 'left',
+    text = element_text(size=13), plot.title = element_text(margin = margin(b = -50)))+
+  scale_x_discrete(breaks=labels2, labels=as.character(labels2)) 
 plot2
 
 
@@ -280,13 +296,13 @@ ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
   ylab(label = NULL)+
   xlab(NULL) +
-  scale_x_discrete()+
   #guides(fill=FALSE) +
   theme_tufte()+
   ggtitle('C') +
-  theme(axis.text.x=element_text(angle=90,hjust=1), legend.position = 'right',
-    text = element_text(size=10), plot.title = element_text(margin = margin(b = -50))) +
-  ylim(0,110) 
+  theme(axis.text.x=element_text(angle=90), legend.position = 'right',
+    text = element_text(size=13), plot.title = element_text(margin = margin(b = -50))) +
+  ylim(0,110) +
+  scale_x_discrete(breaks=labels3, labels=as.character(labels3))
 plot3
 
 
@@ -367,7 +383,7 @@ MME_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
   geom_point(data = filter(main_data, MME == 1), aes(x = V1, y = V2)) +
   #geom_polygon(data = map_data_w, aes(x = V1, y = V2)) +
   geom_path(data = map_data_w, aes(x = long, y = lat, group = group))+
-  theme(text = element_text(size=10), plot.title = element_text(margin = margin(b = -50), hjust = 0.05)) +
+  theme(text = element_text(size=13), plot.title = element_text(margin = margin(b = -50), hjust = 0.05)) +
   ggtitle('A')
           
           # +
@@ -409,7 +425,7 @@ color_seperated_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
   geom_path(data = map_data_w, aes(x = long, y = lat, group = group))+
   #geom_point(data = filter(main_data, MME == 0), aes(x = V1, V2), fill = 'blue', shape = 21)+
   #geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2), fill = 'red', shape = 21)
-  theme(text = element_text(size=10), plot.title = element_text(margin = margin(b = -25), hjust = 0.02)) +
+  theme(text = element_text(size=13), plot.title = element_text(margin = margin(b = -25), hjust = 0.02)) +
   ggtitle('A')
   
 color_seperated_lakes_of_wisconsin
@@ -448,7 +464,7 @@ logreg_at_risk_lakes_of_wisconsin_period_2 <- ggmap(Wisconsin_map) +
   guides(color=FALSE, alpha = FALSE) +
     scale_alpha(limits = c(0,1))+
   geom_path(data = map_data_w, aes(x = long, y = lat, group = group)) +
-  theme(text = element_text(size=10), plot.title = element_text(margin = margin(b = -25), hjust = 0.02)) +
+  theme(text = element_text(size=13), plot.title = element_text(margin = margin(b = -25), hjust = 0.02)) +
   ggtitle('B')
 logreg_at_risk_lakes_of_wisconsin_period_2 
 
@@ -468,7 +484,7 @@ logreg_at_risk_lakes_of_wisconsin_period_3 <- ggmap(Wisconsin_map) +
   guides(alpha = FALSE) +
   scale_alpha(limits = c(0,1))+
   geom_path(data = map_data_w, aes(x = long, y = lat, group = group))+
-  theme(text = element_text(size=10), plot.title = element_text(margin = margin(b = -25), hjust = 0.02)) +
+  theme(text = element_text(size=13), plot.title = element_text(margin = margin(b = -25), hjust = 0.02)) +
   ggtitle('C')
 logreg_at_risk_lakes_of_wisconsin_period_3 
 
