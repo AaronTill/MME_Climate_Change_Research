@@ -1,6 +1,6 @@
 # MME_Climate_Change_Research
 
-This project contains the code for a publication in XXXXXXX 
+This project contains the code for potential publication
 
 # Publication Title: 'Thermal Extremes Drive Fish Die-offs in North Temperate Lakes'
 
@@ -34,7 +34,7 @@ Files:
 # Modeling 
 (package loading: caret, glmnet)
 
-  The creation and testing of the Lasso, Ridge, basic Logistic models for Summerkill. 
+  The creation and testing of the Lasso, Ridge, and basic Logistic models for Summerkill analysis. 
   
 # Visualizations 
 (package loading: ggplot2, ggthemes, ggmap, gridExtra, spdep)
@@ -52,7 +52,7 @@ Files:
   
 # Output Data
 
-  Original Fishkill Data - This is the original excel file used in the initial importiing tidying steps
+  Original Fishkill Data - This is the original excel file used in the initial importing and tidying steps
   
   Lake Risk Assessment - A data file of at risk lakes
   
