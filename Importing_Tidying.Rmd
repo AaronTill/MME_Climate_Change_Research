@@ -20,10 +20,20 @@ library(raster)
 
 ```
 
-```{r uploading and editing MME data}
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/')
+```{r parameters}
 
-MME_raw <-read.csv("Fish Kill Data Updated 5_24_2018.csv")
+input_path = '/home/aatill/MME_Climate_Change_Research/Input_Data/'
+
+```
+
+
+
+
+
+```{r uploading and editing MME data}
+setwd(input_path)
+
+MME_raw <-read.csv("Fish Kill Data Updated 10_24_2018.csv")
 
 MME_filtered <- MME_raw %>%
   filter(Min.Kill.Size!="Excludable") %>%
@@ -37,10 +47,10 @@ MME_filtered <- MME_raw %>%
 
 
 ```{r uploading Thermal/NHD data and transforming Thermal}
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/')
+setwd(input_path)
 
 
-Thermal_Metrics <-read.csv("thermal_metrics.csv") 
+Thermal_Metrics <-read.table("NLDAS_thermal_metrics.tsv", sep = '\t', header = TRUE) 
 
 
 NHD_WBIC <-read.csv("NHD_WBIC.csv")
@@ -168,7 +178,7 @@ main_data_no_spatial$Spring <- ifelse(main_data_no_spatial$Month == 'Mar' | main
 
 ```{r importing spatial data}
 
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/')
+setwd(input_path)
 
 
 dsn <- "lake_shapes"
@@ -221,10 +231,10 @@ main_data$Season <-factor(main_data$Season, levels=c('Summer', 'Spring', 'Winter
 
 ```{r importing spatial data}
 
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/')
+setwd(input_path)
 
 
-dsn2 <- "wisconsin_only_shape"
+dsn2 <- "wisconsin_outline"
 ogrListLayers(dsn2)
 spatial_w <- readOGR(dsn2, layer = 'wisco_only')
 
@@ -291,10 +301,10 @@ main_data_census <- merge(main_data, census_w_frame_summary, full = TRUE)
 
 ```{r}
 
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/')
+setwd(input_path)
 
 
-raw_future_CSIRO <- read_tsv('ACCESS_thermal_metrics.tsv')
+raw_future_CSIRO <- read.table('ACCESS_thermal_metrics.tsv',sep = '\t', header = TRUE)
 
 ```
 
