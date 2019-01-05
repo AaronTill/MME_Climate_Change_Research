@@ -26,16 +26,18 @@ Files:
     2) US census data for wisconsin census blocks (https://www.census.gov/geo/maps-data/data/tiger-data.html)
     
     3) Coordinate data for Wisconsin and Wisconsin lakes (Winslow et al., 2017)
-          model_lakes.shp at https://www.sciencebase.gov/catalog/item/57d97341e4b090824ffb0e6f)
+          https://www.sciencebase.gov/catalog/item/57d97341e4b090824ffb0e6f)
     
     4) Data on modeled thermal temperatues (Winslow et al., 2017)  
           Concurrent = NLDAS, Future = ACCESS
           NLDAS_thermal_metrics.tsv + ACCESS_thermal_metrics.tsv at                                   
           https://www.sciencebase.gov/catalog/item/57d9e887e4b090824ffb1098 
     
-    5) Lake names for building Lake_Assessment.CSV (Available as Wisonsin_Lakes_Maps.xslx.in output data)
+    5) Lake names for building Lake_Assessment.CSV (Found as Wisonsin_Lakes_Maps.xslx in Output_Data > Supplementary_Input_Data)
     
-    6) Joining file for site_id and WBIC numbers. (Available in output_data as NHD_WBIC.csv) 
+    6) Joining file for site_id and WBIC numbers. (Available as NHD_WBIC.csv in Output_Data > Supplementary_Input_Data) 
+    
+    6) Wisconsin state shape outline. (Available in Output_Data > Supplementary_Input_Data)
     
     7) Supplementary - PRISM snow data for Wisconsin between 2004 and 2013. (http://prism.oregonstate.edu/historical/)
     
