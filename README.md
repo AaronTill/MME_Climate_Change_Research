@@ -33,9 +33,11 @@ Files:
           NLDAS_thermal_metrics.tsv + ACCESS_thermal_metrics.tsv at                                   
           https://www.sciencebase.gov/catalog/item/57d9e887e4b090824ffb1098 
     
-    5) Lake names for building Lake_Assessment.CSV (Available as Wisonsin_Lakes_Maps.xslx.in output data). 
+    5) Lake names for building Lake_Assessment.CSV (Available as Wisonsin_Lakes_Maps.xslx.in output data)
     
-    6) Supplementary - PRISM snow data for Wisconsin between 2004 and 2013. (http://prism.oregonstate.edu/historical/)
+    6) Joining file for site_id and WBIC numbers. (Available in output_data as NHD_WBIC.csv) 
+    
+    7) Supplementary - PRISM snow data for Wisconsin between 2004 and 2013. (http://prism.oregonstate.edu/historical/)
     
 # Modeling 
 (package loading: caret, glmnet)
