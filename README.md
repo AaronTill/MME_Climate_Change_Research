@@ -35,6 +35,8 @@ Files:
     
     5) Lake names for building Lake_Assessment.CSV (Available as Wisonsin_Lakes_Maps.xslx.in output data). 
     
+    6) Supplementary - PRISM snow data for Wisconsin between 2004 and 2013. (http://prism.oregonstate.edu/historical/)
+    
 # Modeling 
 (package loading: caret, glmnet)
 
