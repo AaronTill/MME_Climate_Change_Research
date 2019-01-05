@@ -26,8 +26,12 @@ Files:
     2) US census data for wisconsin census blocks (https://www.census.gov/geo/maps-data/data/tiger-data.html)
     
     3) Coordinate data for Wisconsin and Wisconsin lakes (Winslow et al., 2017)
+          model_lakes.shp at https://www.sciencebase.gov/catalog/item/57d97341e4b090824ffb0e6f)
     
-    4) Data on modeled thermal temperatues (Winslow et al., 2017 - Concurrent = NLDAS and Future = ASC)
+    4) Data on modeled thermal temperatues (Winslow et al., 2017)  
+          Concurrent = NLDAS, Future = ACCESS
+          NLDAS_thermal_metrics.tsv + ACCESS_thermal_metrics.tsv at                                   
+          https://www.sciencebase.gov/catalog/item/57d9e887e4b090824ffb1098 
     
     5) Lake names for building Lake_Assessment.CSV (Available as Wisonsin_Lakes_Maps.xslx.in output data). 
     
