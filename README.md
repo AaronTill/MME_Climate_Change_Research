@@ -23,10 +23,11 @@ Files:
     
     1) Wisconsin MME Dataset (available as Original_Fishkill_XXXX in data_output folder)
     
-    2) US census data for wisconsin census blocks (https://www.census.gov/geo/maps-data/data/tiger-data.html)
+    2) US census data for wisconsin Population & Housing Unit Counts - Blocks 
+          https://www.census.gov/geo/maps-data/data/tiger-data.html
     
     3) Coordinate data for Wisconsin and Wisconsin lakes (Winslow et al., 2017)
-          https://www.sciencebase.gov/catalog/item/57d97341e4b090824ffb0e6f)
+          https://www.sciencebase.gov/catalog/item/57d97341e4b090824ffb0e6f
     
     4) Data on modeled thermal temperatues (Winslow et al., 2017)  
           Concurrent = NLDAS, Future = ACCESS
