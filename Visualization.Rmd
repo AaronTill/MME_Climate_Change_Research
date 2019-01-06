@@ -17,9 +17,6 @@ library(spdep)
 
 ```
 
-6 figures allowed
-
-Captions < 300 words
 
 
 
@@ -310,6 +307,119 @@ plot3
  grid.arrange(plot1,plot2,plot3, ncol = 3, widths = c(0.6, 1, 1.2))
 
 ```
+
+
+```{r final plots smoothed - log}
+
+plot2<-lasso_coords_summer_predictions %>%
+  filter(Year <2060 & Year > 2030) %>%
+
+ggplot(aes(x=factor(Year),y = log(Prob))) +
+  geom_jitter(alpha = 0.01)
+plot2
+
+
+
+
+
+```
+
+```{r r final plots smoothed - minimum}
+
+
+plot2<-lasso_coords_summer_predictions %>%
+  filter(Year <2060 & Year > 2030) %>%
+  filter(Prob > 0.01) %>%
+ggplot(aes(x=factor(Year),y = Prob)) +
+  geom_jitter(alpha = 0.1)
+plot2
+
+
+
+```
+
+
+```{r r final plots smoothed - log + minimum}
+
+
+plot2<-lasso_coords_summer_predictions %>%
+  filter(Year <2060 & Year > 2030) %>%
+  filter(Prob > 0.01) %>%
+ggplot(aes(x=factor(Year),y = log(Prob))) +
+  geom_jitter(alpha = 0.1) 
+plot2
+
+
+
+```
+
+
+```{r}
+
+plot2<-lasso_coords_summer_predictions %>%
+  filter(Year <2060 & Year > 2030) %>%  
+  group_by(Year) %>%
+  filter(Prob > 0.01) %>%
+ggplot(aes(x=(Year),y = Prob)) +
+  geom_smooth(method = 'loess')+
+  scale_x_discrete(breaks=labels2, labels=as.character(labels2)) 
+plot2
+
+
+
+
+```
+
+
+
+```{r rates of increase}
+
+lsps = lasso_coords_summer_predictions%>%
+  group_by(Year) %>% 
+  summarise(Summerkill = sum(Prob), Temp = mean(Mean_Surf_Temp)) %>%
+  filter(Year < 2060 & Year > 2030) 
+
+#lsps$increase = diff(lsps$Summerkill, lag = 1, differences = 1)
+
+lsps$increase = NA
+
+
+i = 1
+while (i <= nrow(lsps)) {
+  lsps$increase[i]=lsps$Summerkill[i]/ifelse(i != 1, lsps$Summerkill[i-1], 5) -1
+  i = i + 1
+}
+
+
+plot2<-lsps %>%
+ggplot(aes(x=factor(Year),y = increase, fill = Temp)) +
+  geom_bar(stat ='identity')+
+  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
+  #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
+  ylab("Total Predicted Summerkills")+
+  xlab(NULL) +
+  guides(fill=FALSE) +
+  theme_tufte()+
+  ggtitle('B') +
+  theme(axis.text.x=element_text(angle=90), legend.position = 'left',
+    text = element_text(size=13), plot.title = element_text(margin = margin(b = -50)))+
+  scale_x_discrete(breaks=labels2, labels=as.character(labels2)) 
+plot2
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r qualitative analysis}
 

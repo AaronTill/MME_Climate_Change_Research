@@ -7,6 +7,14 @@ output: html_document
 ```{r}
 library(caret)
 library(glmnet)
+library(readxl)
+
+```
+
+```{r parameters}
+
+main_path = '/home/aatill/MME_Climate_Change_Research'
+
 
 ```
 
@@ -419,13 +427,18 @@ reg_predictions_test %>%
 # User Model Data
 
 ```{r user data}
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/')
 
-Lake_Names <-read.csv("Input_Data/Wi_Lakes_Maps .csv") 
+setwd(main_path)
+
+Lake_Names <-read_excel("Input_Data/Wi_Lakes_Maps.xlsx") 
+
 ```
 
 ```{r}
-Lake_Risk_Assesment <- merge(select(lasso_coords_summer_predictions,WBIC, site_id, Year, Prob, Mean_Surf_Temp), select(Lake_Names, OFFICIAL_NAME, WBIC)) %>%
+
+setwd('/home/aatill/MME_Climate_Change_Research/Output_Data')
+
+Lake_Risk_Assesment <- merge(dplyr::select(lasso_coords_summer_predictions,WBIC, site_id, Year, Prob, Mean_Surf_Temp), dplyr::select(Lake_Names, OFFICIAL_NAME, WBIC)) %>%
   filter(Year > 2020) %>%
   group_by(WBIC, site_id, Year, OFFICIAL_NAME) %>%
   summarise('Summerkill Probability' = sum(Prob), 'Mean Surface Temperature' = mean(Mean_Surf_Temp))

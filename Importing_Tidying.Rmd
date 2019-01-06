@@ -3,8 +3,7 @@ title: "Research_Paper_Code"
 author: "aaron till"
 date: "5/24/2018"
 output: github_document
----
-
+--- 
 
 ```{r installing packages}
 
@@ -50,7 +49,7 @@ MME_filtered <- MME_raw %>%
 setwd(input_path)
 
 
-Thermal_Metrics <-read.table("NLDAS_thermal_metrics.tsv", sep = '\t', header = TRUE) 
+Thermal_Metrics <-read.csv("thermal_metrics.csv") 
 
 
 NHD_WBIC <-read.csv("NHD_WBIC.csv")
@@ -247,7 +246,7 @@ https://www.census.gov/geo/maps-data/data/tiger-data.html
 
 ```{r importing spatial data}
 
-setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/')
+setwd(input_path)
 
 
 dsn3 <- "census_data"
@@ -304,7 +303,7 @@ main_data_census <- merge(main_data, census_w_frame_summary, full = TRUE)
 setwd(input_path)
 
 
-raw_future_CSIRO <- read.table('ACCESS_thermal_metrics.tsv',sep = '\t', header = TRUE)
+raw_future_CSIRO <- read_tsv('ACCESS_thermal_metrics.tsv')
 
 ```
 
@@ -406,7 +405,7 @@ future_data_census <- merge(future_data, census_w_frame_summary, full = TRUE)
 
 
 
-```{r}
+``{r}
 
 
   
@@ -440,7 +439,7 @@ tidy_snow <- function(data_input, year, month) {
 ```
 
 
-```{r}
+``{r}
 
 setwd('/home/aatill/Till_Thesis/Summer_Research_Work/MME_Climate_Change_Research/Input_Data/Prism Data/PRISM_Precip/')
 
