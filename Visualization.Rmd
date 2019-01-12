@@ -232,179 +232,96 @@ t.test(ttest_winter$zscore_temp, mu = 0) # There are a lot of cold lakes without
 
 
 
-```{r}
 
-# lasso ! !=
-labels1 <- seq(2004, 2013, length.out=4)
-labels2 <- seq(2041, 2059, length.out=10)
-labels3 <- seq(2081, 2099, length.out=10)
-# and set breaks and labels
+
+```{r New smoothed charts}
 
 
 plot1<-main_data %>%
   group_by(Year) %>%
   filter(Year<2014) %>%
   summarise(Summerkill = sum(Summerkill), Temp = mean(Mean_Surf_Temp)) %>%
-ggplot(aes(x=factor(Year), y = Summerkill, fill = Temp)) + 
-  geom_bar(stat ='identity')+
-  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
+ggplot(aes(x=Year,y = Summerkill)) +
+  geom_point(color='black')+
+  #geom_smooth(span =0.5, se = FALSE, color ='black')+
+  #geom_smooth(method = 'loess', size = 1)+
+  #scale_x_discrete(limits= labels1) +
   #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
   ylab("Total Observed Summerkills")+
   xlab(NULL) +
   guides(fill=FALSE) +
-  theme_tufte()+
-  ylim(0,110) +
+  theme_calc()+
+  ylim(-30,110) +
   theme(axis.text.x=element_text(angle=90), 
         legend.position = 'left',
     text = element_text(size=13), 
     plot.title = element_text(margin = margin(b = -50))) +
   ggtitle('A') +
-  scale_x_discrete(breaks=labels1, labels=as.character(labels1))
+  scale_x_discrete( limits = c(2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014))
 plot1
 
 plot2<-lasso_coords_summer_predictions %>%
   filter(Year <2060 & Year > 2030) %>%  
   group_by(Year) %>%
-  summarise(Summerkill = sum(Prob), Temp = mean(Mean_Surf_Temp) ) %>%
-ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
-  geom_bar(stat ='identity')+
-  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
-  #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
+  summarise('Total Kills' = sum(Prob))%>%
+  #filter(Prob > 0.01) %>%
+ggplot(aes(x=Year,y = `Total Kills`)) +
+  geom_smooth(span =0.6, color ='black' )+
+  #geom_smooth(method = 'loess', size = 1)+
+  scale_x_discrete(limits= c(2041,2042,2043,2044,2045,2046,2047,2048,2049,2050,2051,2052,2053,2054,2055,2056,2057,2058,2059) ) +
   ylab("Total Predicted Summerkills")+
   xlab(NULL) +
-  guides(fill=FALSE) +
-  theme_tufte()+
-  ylim(0,110) +
+  #theme_tufte()+
+  theme_calc()+
+  ylim(-30,110) +
   ggtitle('B') +
-  theme(axis.text.x=element_text(angle=90), legend.position = 'left',
-    text = element_text(size=13), plot.title = element_text(margin = margin(b = -50)))+
-  scale_x_discrete(breaks=labels2, labels=as.character(labels2)) 
+  theme(axis.text.x=element_text(angle=90),
+    text = element_text(size=13), plot.title = element_text(margin = margin(b = -50)))
 plot2
 
 
-
-plot3<- lasso_coords_summer_predictions %>%
-  filter(Year >2060) %>%
+plot3<-lasso_coords_summer_predictions %>%
+  filter(Year >2060) %>%  
   group_by(Year) %>%
-  summarise(Summerkill = sum(Prob), Temp = mean(Mean_Surf_Temp) ) %>%
-ggplot(aes(x=factor(Year),y = Summerkill, fill = Temp)) +
-  geom_bar(stat ='identity')+
-  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
-  #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
-  ylab(label = NULL)+
+  summarise('Total Kills' = sum(Prob))%>%
+  #filter(Prob > 0.01) %>%
+ggplot(aes(x=Year,y = `Total Kills`)) +
+  geom_smooth(span =0.6, color ='black' )+
+  #geom_smooth(method = 'loess', size = 1)+
+  scale_x_discrete(limits= c(2081,2082,2083,2084,2085,2086,2087,2088,2089,2090,2091,2092,2093,2094,2095,2096,2097,2098,2099)) +
+  ylab("Total Predicted Summerkills")+
   xlab(NULL) +
-  #guides(fill=FALSE) +
-  theme_tufte()+
-  ggtitle('C') +
-  theme(axis.text.x=element_text(angle=90), legend.position = 'right',
-    text = element_text(size=13), plot.title = element_text(margin = margin(b = -50))) +
-  ylim(0,110) +
-  scale_x_discrete(breaks=labels3, labels=as.character(labels3))
+  #theme_tufte()+
+  theme_calc()+
+  ylim(-30,110) +
+  ggtitle('B') +
+  theme(axis.text.x=element_text(angle=90),
+    text = element_text(size=13), plot.title = element_text(margin = margin(b = -50)))
 plot3
 
-
-
- grid.arrange(plot1,plot2,plot3, ncol = 3, widths = c(0.6, 1, 1.2))
-
-```
-
-
-```{r final plots smoothed - log}
-
-plot2<-lasso_coords_summer_predictions %>%
-  filter(Year <2060 & Year > 2030) %>%
-
-ggplot(aes(x=factor(Year),y = log(Prob))) +
-  geom_jitter(alpha = 0.01)
-plot2
-
-
-
+grid.arrange(plot1,plot2,plot3, ncol = 3, widths = c(.6, 1, 1))
 
 
 ```
 
-```{r r final plots smoothed - minimum}
+
+
+```{r model summerkills to temperature}
+
 
 
 plot2<-lasso_coords_summer_predictions %>%
-  filter(Year <2060 & Year > 2030) %>%
-  filter(Prob > 0.01) %>%
-ggplot(aes(x=factor(Year),y = Prob)) +
-  geom_jitter(alpha = 0.1)
+ggplot(aes(x=Mean_Surf_Temp,y = Prob)) +
+  geom_smooth(span =0.6, color ='black' )+
+  ylab("Probability of Summerkill")+
+  xlab('Monthly Mean Surface Temperature') +
+  #theme_tufte()+
+  theme_calc()+
+  ggtitle('D') +
+  theme(axis.text.x=element_text(angle=90),
+    text = element_text(size=13), plot.title = element_text(margin = margin(b = -50)))
 plot2
 
-
-
-```
-
-
-```{r r final plots smoothed - log + minimum}
-
-
-plot2<-lasso_coords_summer_predictions %>%
-  filter(Year <2060 & Year > 2030) %>%
-  filter(Prob > 0.01) %>%
-ggplot(aes(x=factor(Year),y = log(Prob))) +
-  geom_jitter(alpha = 0.1) 
-plot2
-
-
-
-```
-
-
-```{r}
-
-plot2<-lasso_coords_summer_predictions %>%
-  filter(Year <2060 & Year > 2030) %>%  
-  group_by(Year) %>%
-  filter(Prob > 0.01) %>%
-ggplot(aes(x=(Year),y = Prob)) +
-  geom_smooth(method = 'loess')+
-  scale_x_discrete(breaks=labels2, labels=as.character(labels2)) 
-plot2
-
-
-
-
-```
-
-
-
-```{r rates of increase}
-
-lsps = lasso_coords_summer_predictions%>%
-  group_by(Year) %>% 
-  summarise(Summerkill = sum(Prob), Temp = mean(Mean_Surf_Temp)) %>%
-  filter(Year < 2060 & Year > 2030) 
-
-#lsps$increase = diff(lsps$Summerkill, lag = 1, differences = 1)
-
-lsps$increase = NA
-
-
-i = 1
-while (i <= nrow(lsps)) {
-  lsps$increase[i]=lsps$Summerkill[i]/ifelse(i != 1, lsps$Summerkill[i-1], 5) -1
-  i = i + 1
-}
-
-
-plot2<-lsps %>%
-ggplot(aes(x=factor(Year),y = increase, fill = Temp)) +
-  geom_bar(stat ='identity')+
-  scale_fill_gradient(low = 'Blue', high = 'Red', limits = c(9, 16)) +
-  #geom_boxplot(color="black",aes(y=peak_temp, group=Year)) +
-  ylab("Total Predicted Summerkills")+
-  xlab(NULL) +
-  guides(fill=FALSE) +
-  theme_tufte()+
-  ggtitle('B') +
-  theme(axis.text.x=element_text(angle=90), legend.position = 'left',
-    text = element_text(size=13), plot.title = element_text(margin = margin(b = -50)))+
-  scale_x_discrete(breaks=labels2, labels=as.character(labels2)) 
-plot2
 
 
 
