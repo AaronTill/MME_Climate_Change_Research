@@ -171,3 +171,26 @@ ggplot(aes(x = n)) +
 
 
 ```
+
+
+```{r}
+
+
+Wi_Lakes_Maps <- read_excel("Input_Data/Wi_Lakes_Maps.xlsx")
+
+depth_data <- main_data %>% full_join(Wi_Lakes_Maps, By = 'WBIC')
+
+
+depth_data %>%
+  filter(!is.na(OFFICIAL_MAX_DEPTH_VALUE)) %>%
+  filter(!is.na(MME)) %>%
+  group_by(WBIC) %>%
+  summarise(Depth = mean(as.numeric(OFFICIAL_MAX_DEPTH_VALUE)), MME = max(MME)) %>%
+ggplot(aes(x=WBIC, y = Depth, color = factor(MME))) +
+  geom_point()+
+  facet_grid(.~MME)
+
+
+
+
+```
