@@ -44,6 +44,7 @@ t.test(ttest_data_all$zscore_temp, mu = 0)
 
 
 ```
+
 ```{r ice duration winterkill}
 
 combined_data_restricted <- combined_data_restricted %>%
@@ -197,14 +198,20 @@ ggplot(aes(x=WBIC, y = Depth, color = factor(MME))) +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
 
-depth_data %>%
-  filter(!is.na(OFFICIAL_MAX_DEPTH_VALUE)) %>%
-  filter(!is.na(MME)) %>%
-  group_by(WBIC) %>%
-  summarise(Depth = mean(as.numeric(OFFICIAL_MAX_DEPTH_VALUE)), MME = sum(MME)) %>%
+ %>%
   mutate(MME = ifelse(MME >= 4, '4+', MME)) %>%
 ggplot(aes(x=MME, y = Depth, color = factor(MME))) +
   geom_boxplot(aes(group = MME))+
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+
+anova_depth <- aov(Depth ~ factor(MME), depth_data %>%
+  filter(!is.na(OFFICIAL_MAX_DEPTH_VALUE)) %>%
+  filter(!is.na(MME)) %>%
+  group_by(WBIC) %>%
+  summarise(Depth = mean(as.numeric(OFFICIAL_MAX_DEPTH_VALUE)), MME = max(MME)))
+summary(anova_depth)
+tuk <- TukeyHSD(anova_depth)
+tuk
 
 ```
