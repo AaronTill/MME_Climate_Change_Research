@@ -215,3 +215,51 @@ tuk <- TukeyHSD(anova_depth)
 tuk
 
 ```
+
+
+
+```{r avg temp over time}
+
+full_data <- bind(lasso_coords_summer_predictions%>%
+                        filter(Year > 2002) %>%
+                        group_by(Year) %>%
+                        summarise(Summerkills = sum(Prob), 
+                              Temp = mean(Mean_Surf_Temp)),  
+                  main_data%>% 
+                        group_by(Year) %>%
+                        filter(Year<2014) %>%
+                        summarise(Summerkills = sum(Summerkill), 
+                        Temp = mean(Mean_Surf_Temp))
+) 
+
+full_data = full_data%>%bind_rows(tibble(Year = c(2015:2040, 2060:2080), Summerkills = NA, Temp = NA)) %>% mutate(y = 25)
+
+
+
+plot <- full_data %>%
+  ggplot(aes(x= Year, y = Temp)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm', se = FALSE) +
+  ylab('Average Yearly Surface Temperature')
+
+plot
+
+
+
+
+```main_data %>%
+  filter(MME > 0) %>%
+  filter(Season == 'Summer') %>%
+  group_by(WBIC, Year) %>%
+  summarise(Mortality_Months = sum(MME)) %>%
+  ggplot(aes(x = factor(Mortality_Months))) +
+    xlab('Multiple Mortalities in One Summer')+
+    geom_bar()
+
+
+```{r}
+
+
+
+
+```

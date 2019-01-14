@@ -305,20 +305,66 @@ grid.arrange(plot1,plot2,plot3, ncol = 3, widths = c(.6, 1, 1))
 ```
 
 
+```{r one figure}
+full_data <- bind(lasso_coords_summer_predictions%>%
+                        filter(Year > 2002) %>%
+                        group_by(Year) %>%
+                        summarise(Summerkills = sum(Prob), 
+                              Temp = mean(Mean_Surf_Temp)),  
+                  main_data%>% 
+                        group_by(Year) %>%
+                        filter(Year<2014) %>%
+                        summarise(Summerkills = sum(Summerkill), 
+                        Temp = mean(Mean_Surf_Temp))
+) 
+
+full_data = full_data%>%bind_rows(tibble(Year = c(2015:2040, 2060:2080), Summerkills = NA, Temp = NA)) %>% mutate(y = 25)
+
+
+plot<- full_data%>%
+ggplot(aes(x=Year,y = Summerkills)) +
+  geom_rect(xmin = 2014, xmax = 2041, ymin = 0, ymax = 110, alpha = 0.01)+
+  geom_rect(xmin = 2059, xmax = 2081, ymin = 0, ymax = 110, alpha = 0.01)+
+  geom_line(color = 'black')+
+  #geom_smooth(span = 0.3, color = 'black', se = FALSE)+
+  #geom_ribbon(ymin = lb, ymax = ub, alpha = 0.5) +
+  geom_bar(stat = 'identity', aes(x = Year, y = y, fill = Temp), alpha = 0.5)+
+
+  ylab("Total Predicted Summerkills")+
+  xlab(NULL) +
+  #theme_tufte()+
+  theme_calc()+
+  scale_fill_gradient(low = 'blue', high = 'red', limits = c(9, 16)) +
+  #scale_fill_manual( palette = 'Blue-Red', limits = c(9, 16), breaks = waiver())+
+  ylim(0,105) 
+
+plot
+
+
+
+
+
+
+
+```
+
+
 
 ```{r model summerkills to temperature}
 
 
 
 plot2<-lasso_coords_summer_predictions %>%
+  filter(Year > 2002) %>%
 ggplot(aes(x=Mean_Surf_Temp,y = Prob)) +
+  
   geom_smooth(span =0.6, color ='black' )+
   ylab("Probability of Summerkill")+
   xlab('Monthly Mean Surface Temperature') +
   #theme_tufte()+
   theme_calc()+
   ggtitle('D') +
-  theme(axis.text.x=element_text(angle=90),
+  theme(
     text = element_text(size=13), plot.title = element_text(margin = margin(b = -50)))
 plot2
 
