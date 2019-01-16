@@ -8,7 +8,7 @@ output: html_document
 library(caret)
 library(glmnet)
 library(readxl)
-
+library(purrr)
 ```
 
 ```{r parameters}
@@ -163,6 +163,22 @@ ridge_summer_predictions$Summerkill_forecast <- simulation_log_regress
 
 ```{r}
 
+compute_quantile <- function(x, q, reps = 1000) {
+  x %>%
+    map_dfc( ~ rbinom(reps, 1, prob = .x)) %>%
+    rowSums() %>%
+    quantile(q)
+}
+
+
+df <- df %>%
+  group_by(year) %>%
+  summarize(pred_kills = sum(p),
+            lb_kill    = compute_quantile(p, q = .025, reps = 5000),
+            ub_kill    = compute_quantile(p, q = .975, reps = 5000))
+
+
+
 lasso_coords_summer_predictions <- dplyr::select(future_data_census, -FType, - FCode, - GNIS_Nm, - ReachCd, - Prmnn_I, - GNIS_ID, - Month, - Season, - Spring, - layer_dif, - quadratic_temp, - peak_temp, - long_round, - lat_round, - year, - Ice_Duration)
 
 lasso_coords_summer_predictions$Summerkill <- 0 # Not sure why I am forced to make this
@@ -174,7 +190,16 @@ newx<- model.matrix(Summerkill ~ . - Year - WBIC - site_id, lasso_coords_summer_
 lasso_coords_summer_predictions$Prob <- as.vector(predict(lasso_regression_coords_model_summer, newx= newx, type = 'response'))
 
 
-lasso_coords_summer_predictions$quantile <- quantile(lasso_coords_summer_predictions$Prob,probs = c(.01, 25, 75)/100, na.rm = TRUE)
+#lasso_coords_summer_predictions$quantile <- quantile(lasso_coords_summer_predictions$Prob,probs = c(.01, 25, 75)/100, na.rm = TRUE)
+
+
+lasso_coords_summer_predictions <- lasso_coords_summer_predictions %>%
+  group_by(Year) %>%
+  summarize(temp = mean(Mean_Surf_Temp),
+            pred_kills = sum(Prob),
+            lb_kill    = compute_quantile(Prob, q = .025, reps = 5000),
+            ub_kill    = compute_quantile(Prob, q = .975, reps = 5000))
+
 
 ```
 

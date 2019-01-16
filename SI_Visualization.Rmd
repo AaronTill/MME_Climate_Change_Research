@@ -220,26 +220,30 @@ tuk
 
 ```{r avg temp over time}
 
-full_data <- bind(lasso_coords_summer_predictions%>%
-                        filter(Year > 2002) %>%
+full_data <- lasso_coords_summer_predictions%>%
+                        filter(Year > 2040 & Year < 2060) %>%
                         group_by(Year) %>%
-                        summarise(Summerkills = sum(Prob), 
-                              Temp = mean(Mean_Surf_Temp)),  
-                  main_data%>% 
-                        group_by(Year) %>%
-                        filter(Year<2014) %>%
-                        summarise(Summerkills = sum(Summerkill), 
-                        Temp = mean(Mean_Surf_Temp))
-) 
+                        summarise(Summerkills = sum(Prob), Temp = mean(Mean_Surf_Temp))
+  
+  #bind(lasso_coords_summer_predictions%>%
+  #                      filter(Year > 2040) %>%
+  #                      group_by(Year) %>%
+  #                      summarise(Summerkills = sum(Prob), 
+  #                            Temp = mean(Mean_Surf_Temp)),  
+  #                main_data%>% 
+  #                      group_by(Year) %>%
+  #                      filter(Year<2014) %>%
+  #                      summarise(Summerkills = sum(Summerkill), 
+  #                      Temp = mean(Mean_Surf_Temp))
+#) 
 
-full_data = full_data%>%bind_rows(tibble(Year = c(2015:2040, 2060:2080), Summerkills = NA, Temp = NA)) %>% mutate(y = 25)
+#full_data = full_data%>%bind_rows(tibble(Year = c(2015:2040, 2060:2080), Summerkills = NA, Temp = NA)) %>% mutate(y = 25)
 
 
 
 plot <- full_data %>%
   ggplot(aes(x= Year, y = Temp)) + 
   geom_point() + 
-  geom_smooth(method = 'lm', se = FALSE) +
   ylab('Average Yearly Surface Temperature')
 
 plot
@@ -247,19 +251,21 @@ plot
 
 
 
-```main_data %>%
-  filter(MME > 0) %>%
-  filter(Season == 'Summer') %>%
-  group_by(WBIC, Year) %>%
-  summarise(Mortality_Months = sum(MME)) %>%
-  ggplot(aes(x = factor(Mortality_Months))) +
-    xlab('Multiple Mortalities in One Summer')+
-    geom_bar()
+```
 
 
 ```{r}
 
-
+main_data %>%
+  filter(MME > 0) %>%
+  filter(Season == 'Summer') %>%
+  group_by(WBIC,Month, Year) %>%
+  summarise(Mortality_Months = max(MME)) %>%
+  group_by(Year, WBIC) %>%
+  summarise(Mortality_Months = sum(Mortality_Months)) %>%
+  ggplot(aes(x = factor(Mortality_Months))) +
+    xlab('Multiple Mortalities in One Summer')+
+    geom_bar()
 
 
 ```

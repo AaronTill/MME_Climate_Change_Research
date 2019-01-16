@@ -306,29 +306,50 @@ grid.arrange(plot1,plot2,plot3, ncol = 3, widths = c(.6, 1, 1))
 
 
 ```{r one figure}
+
+
+lasso_coords_summer_predictions = lasso_coords_summer_predictions%>% 
+  mutate(early_kills = ifelse(Year < 2060, lasso_coords_summer_predictions$pred_kills, NA)) %>% 
+  mutate(late_kills = ifelse(Year > 2060, lasso_coords_summer_predictions$pred_kills, NA))
+
+
+
 full_data <- bind(lasso_coords_summer_predictions%>%
-                        filter(Year > 2002) %>%
-                        group_by(Year) %>%
-                        summarise(Summerkills = sum(Prob), 
-                              Temp = mean(Mean_Surf_Temp)),  
+                        filter(Year > 2002) #%>%
+                       # group_by(Year) %>%
+                        #summarise(Summerkills = sum(Prob), 
+                         #     Temp = mean(Mean_Surf_Temp))
+                  ,  
                   main_data%>% 
                         group_by(Year) %>%
                         filter(Year<2014) %>%
-                        summarise(Summerkills = sum(Summerkill), 
-                        Temp = mean(Mean_Surf_Temp))
+                        summarise(actual_kills = sum(Summerkill), 
+                        temp = mean(Mean_Surf_Temp))
 ) 
 
-full_data = full_data%>%bind_rows(tibble(Year = c(2015:2040, 2060:2080), Summerkills = NA, Temp = NA)) %>% mutate(y = 25)
+full_data = full_data%>%bind_rows(tibble(Year = c(2015:2040, 2060:2080))) %>% 
+  mutate(y = 25) %>%   
+  mutate(early_lb = ifelse(Year < 2060, lb_kill, NA))%>% 
+  mutate(late_lb = ifelse(Year > 2060, lb_kill, NA)) %>%
+  mutate(early_ub = ifelse(Year < 2060, ub_kill, NA))%>% 
+  mutate(late_ub = ifelse(Year > 2060, ub_kill, NA))
 
 
 plot<- full_data%>%
-ggplot(aes(x=Year,y = Summerkills)) +
-  geom_rect(xmin = 2014, xmax = 2041, ymin = 0, ymax = 110, alpha = 0.01)+
-  geom_rect(xmin = 2059, xmax = 2081, ymin = 0, ymax = 110, alpha = 0.01)+
-  geom_line(color = 'black')+
-  #geom_smooth(span = 0.3, color = 'black', se = FALSE)+
+ggplot(aes(x=Year,y = pred_kills)) +
+  geom_rect(xmin = 2013, xmax = 2041, ymin = 0, ymax = 110, alpha = 0.004)+
+  geom_rect(xmin = 2059, xmax = 2081, ymin = 0, ymax = 110, alpha = 0.004)+
+  #geom_line(color = 'black') +
+  #geom_ribbon(aes(ymax = ub_kill, ymin = lb_kill), alpha = 0.5)+
+  geom_smooth(aes(y = actual_kills), span = 0.5, color = 'black', se = FALSE)+
+  geom_smooth(aes(y = early_kills), span = 0.5, color = 'black', se = FALSE)+
+  geom_smooth(aes(y = late_kills), span = 0.5, color = 'black', se = FALSE)+
+  geom_smooth(aes(y = early_lb), span = 0.5, color = 'black', linetype = 'dashed', se = FALSE) +
+  geom_smooth(aes(y = late_lb), span = 0.5, color = 'black', linetype = 'dashed', se = FALSE) +
+  geom_smooth(aes(y=early_ub),span = 0.5, color = 'black', linetype = 'dashed', se = FALSE)+
+  geom_smooth(aes(y=late_ub),span = 0.5, color = 'black', linetype = 'dashed', se = FALSE)+
   #geom_ribbon(ymin = lb, ymax = ub, alpha = 0.5) +
-  geom_bar(stat = 'identity', aes(x = Year, y = y, fill = Temp), alpha = 0.5)+
+  geom_bar(stat = 'identity', aes(x = Year, y = y, fill = temp), alpha = 0.5)+
 
   ylab("Total Predicted Summerkills")+
   xlab(NULL) +
@@ -336,8 +357,7 @@ ggplot(aes(x=Year,y = Summerkills)) +
   theme_calc()+
   scale_fill_gradient(low = 'blue', high = 'red', limits = c(9, 16)) +
   #scale_fill_manual( palette = 'Blue-Red', limits = c(9, 16), breaks = waiver())+
-  ylim(0,105) 
-
+  ylim(0,130) 
 plot
 
 
