@@ -192,6 +192,8 @@ lasso_coords_summer_predictions$Prob <- as.vector(predict(lasso_regression_coord
 
 #lasso_coords_summer_predictions$quantile <- quantile(lasso_coords_summer_predictions$Prob,probs = c(.01, 25, 75)/100, na.rm = TRUE)
 
+lasso_model_monthly = lasso_coords_summer_predictions
+
 
 lasso_coords_summer_predictions <- lasso_coords_summer_predictions %>%
   group_by(Year) %>%

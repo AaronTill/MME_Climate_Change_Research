@@ -10,14 +10,14 @@ output: html_document
 
 combined_data_restricted <- combined_data_restricted %>%
   mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'INFECTIOUS AGENT'), 'Infectious Agent'))  %>%
-    mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'ANTHROPOGENIC CONDITION'), 'Human Disturbance'))%>%
+    mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'ANTHROPOGENIC CONDITION'), 'Human Perturbation'))%>%
     mutate(Cause.Category.4 = replace(as.character(Cause.Category.4), which(Cause.Category.4 == 'WINTERKILL'), 'Winterkill'))
 
 combined_data_restricted$sig_all <- ifelse(combined_data_restricted$Cause.Category.4 == 'Winterkill', 'p<.05', 'p>.05')
 combined_data_restricted$sig_all <- factor(combined_data_restricted$sig_all, levels = c('p>.05', 'p<.05'))
 
 ultimate_zscore_boxplot <- mean_surf(combined_data_restricted) %>%
-  filter(Cause.Category.4 == 'Infectious Agent' | Cause.Category.4 == 'Winterkill' | Cause.Category.4 == 'Human Disturbance' ) %>%
+  filter(Cause.Category.4 == 'Infectious Agent' | Cause.Category.4 == 'Winterkill' | Cause.Category.4 == 'Human Perturbation' ) %>%
 ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
   theme_tufte() +
   ylab('Z-score All Seasons')+
@@ -33,7 +33,7 @@ ggplot(aes(y = zscore_temp,x = Cause.Category.4)) +
 ultimate_zscore_boxplot
 
 
-ttest_data_all_anthro <- filter(mean_surf(combined_data_restricted), Cause.Category.4 == 'Human Disturbance')
+ttest_data_all_anthro <- filter(mean_surf(combined_data_restricted), Cause.Category.4 == 'Human Perturbation')
 t.test(ttest_data_all_anthro$zscore_temp, mu = 0)
 
 ttest_data_infectious_all<- filter(mean_surf(combined_data_restricted), Cause.Category.4 == 'Infectious Agent')
@@ -197,12 +197,16 @@ ggplot(aes(x=WBIC, y = Depth, color = factor(MME))) +
   facet_grid(.~MME) +
   theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
 
-
- %>%
-  mutate(MME = ifelse(MME >= 4, '4+', MME)) %>%
-ggplot(aes(x=MME, y = Depth, color = factor(MME))) +
-  geom_boxplot(aes(group = MME))+
-  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+depth_data %>%
+  filter(!is.na(OFFICIAL_MAX_DEPTH_VALUE)) %>%
+  filter(!is.na(MME)) %>%
+  group_by(WBIC) %>%
+  summarise(Depth = mean(as.numeric(OFFICIAL_MAX_DEPTH_VALUE)), Dieoffs = sum(MME))%>%
+  mutate(Dieoffs = ifelse(Dieoffs >= 4, '4+', Dieoffs)) %>%
+ggplot(aes(x=Dieoffs, y = Depth, colour = Dieoffs)) +
+  geom_boxplot(aes(group = Dieoffs))+
+  guides(colour = FALSE)+
+  theme_tufte()
 
 
 anova_depth <- aov(Depth ~ factor(MME), depth_data %>%

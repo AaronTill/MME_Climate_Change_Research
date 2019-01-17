@@ -505,20 +505,20 @@ summarized_main_data<-main_data %>%
 color_seperated_lakes_of_wisconsin <- ggmap(Wisconsin_map) +
   geom_point(data = arrange(summarized_main_data, MME), aes(x = V1, V2, color = MME, alpha = MME), size = 0.5)+
   scale_color_gradient(low = 'Blue', high = 'Red', limits = c(0, 1)) +
-  theme(axis.title.x=element_blank(),
+  theme(axis.title.x=element_text(),
         #axis.text.x=element_blank(),
         #axis.ticks.x=element_blank(),
-        axis.title.y=element_blank()
+        axis.title.y=element_text(),
         #axis.text.y=element_blank(), 
-        #axis.ticks.y=element_blank()
+        #axis.ticks.y=element_blank(), 
+        panel.border = element_rect(colour = "black", fill=NA, size=3)
         ) +
     guides(color=FALSE, alpha = FALSE) +
     scale_alpha(limits = c(0,1))+
-
   geom_path(data = map_data_w, aes(x = long, y = lat, group = group))+
   #geom_point(data = filter(main_data, MME == 0), aes(x = V1, V2), fill = 'blue', shape = 21)+
   #geom_point(data = filter(main_data, MME == 1), aes(x = V1, V2), fill = 'red', shape = 21)
-  theme(text = element_text(size=13), plot.title = element_text(margin = margin(b = -25), hjust = 0.02)) +
+  theme(text = element_text(size=13), plot.title = element_text(margin = margin(b = 0), hjust = -0)) +
   ggtitle('A')
   
 color_seperated_lakes_of_wisconsin
@@ -528,56 +528,58 @@ color_seperated_lakes_of_wisconsin
 
 ```{r future}
 
-lasso_coords_summer_predictions$No_Event_Prob <- 1 - lasso_coords_summer_predictions$Prob
+lasso_coords_summer_predictions$No_Event_Prob <- 1 - lasso_model_monthly$Prob
 
 summarized_lasso_summer_predictions_p2 <- lasso_coords_summer_predictions %>%
   filter(Year > 2030 & Year < 2070) %>%
   group_by(WBIC) %>%
-  summarise(Prob = (1 - prod(No_Event_Prob)), V1 = mean(V1), V2 = mean(V2)) 
+  summarise(prob = (1 - prod(No_Event_Prob)), V1 = mean(V1), V2 = mean(V2)) 
 
 summarized_lasso_summer_predictions_p3 <- lasso_coords_summer_predictions %>%
   filter(Year > 2070) %>%
   group_by(WBIC) %>%
-  summarise(Prob = (1 - prod(No_Event_Prob)), V1 = mean(V1), V2 = mean(V2)) 
+  summarise(prob = (1 - prod(No_Event_Prob)), V1 = mean(V1), V2 = mean(V2)) 
 
 summarized_lasso_summer_predictions_both <- lasso_coords_summer_predictions %>%
   filter(Year > 2020) %>%
   group_by(WBIC) %>%
-  summarise(Prob = (1 - prod(No_Event_Prob)), V1 = mean(V1), V2 = mean(V2)) 
+  summarise(prob = (1 - prod(No_Event_Prob)), V1 = mean(V1), V2 = mean(V2)) 
 
 logreg_at_risk_lakes_of_wisconsin_period_2 <- ggmap(Wisconsin_map) + 
-  geom_point(data = arrange(summarized_lasso_summer_predictions_p2, Prob), aes(x = V1, V2, color = Prob, alpha = Prob), size = 0.5)+
+  geom_point(data = arrange(summarized_lasso_summer_predictions_p2, prob), aes(x = V1, V2, color = prob, alpha = prob), size = 0.5)+
   scale_color_gradient(low = 'Blue', high = 'Red',na.value = 'red', limits = c(0, 1)) +
-    theme(axis.title.x=element_blank(),
+    theme(axis.title.x=element_text(),
         #axis.text.x=element_blank(),
         #axis.ticks.x=element_blank(),
-        axis.title.y=element_blank(),
+        axis.title.y=element_text(),
         axis.text.y=element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA, size=3),
         axis.ticks.y=element_blank())+
   guides(color=FALSE, alpha = FALSE) +
     scale_alpha(limits = c(0,1))+
   geom_path(data = map_data_w, aes(x = long, y = lat, group = group)) +
-  theme(text = element_text(size=13), plot.title = element_text(margin = margin(b = -25), hjust = 0.02)) +
+  theme(text = element_text(size=13), plot.title = element_text(margin = margin(b = 0), hjust = 0.0)) +
   ggtitle('B')
 logreg_at_risk_lakes_of_wisconsin_period_2 
 
 
 logreg_at_risk_lakes_of_wisconsin_period_3 <- ggmap(Wisconsin_map) + 
-  geom_point(data = arrange(summarized_lasso_summer_predictions_p3, Prob), aes(x = V1, V2, color = Prob, alpha = Prob),size = 0.5)+
+  geom_point(data = arrange(summarized_lasso_summer_predictions_p3, prob), aes(x = V1, V2, color = prob, alpha = prob),size = 0.5)+
  scale_color_gradient(low = 'Blue', high = 'Red', na.value = 'Red', limits = c(0, 1)) +
-    theme(axis.title.x=element_blank(),
+    theme(axis.title.x=element_text('Longitude'),
         #axis.text.x=element_blank(),
         #axis.ticks.x=element_blank(),
-        axis.title.y=element_blank(),
+        axis.title.y=element_text('Latitude'),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
         legend.key.size = unit(0.3, 'cm'), 
         legend.text= element_text(size = 5),
+        panel.border = element_rect(colour = "black", fill=NA, size=3),
         legend.title = element_text(size = 10))+
   guides(alpha = FALSE) +
   scale_alpha(limits = c(0,1))+
   geom_path(data = map_data_w, aes(x = long, y = lat, group = group))+
-  theme(text = element_text(size=13), plot.title = element_text(margin = margin(b = -25), hjust = 0.02)) +
+  theme(text = element_text(size=13), plot.title = element_text(margin = margin(b = 0), hjust = 0.0)) +
   ggtitle('C')
 logreg_at_risk_lakes_of_wisconsin_period_3 
 
@@ -588,7 +590,7 @@ logreg_at_risk_lakes_of_wisconsin_period_3
 ```{r}
 
 
-grid.arrange(color_seperated_lakes_of_wisconsin,logreg_at_risk_lakes_of_wisconsin_period_2, logreg_at_risk_lakes_of_wisconsin_period_3, ncol = 3, widths = c(1.07,1,1.3))
+grid.arrange(color_seperated_lakes_of_wisconsin,logreg_at_risk_lakes_of_wisconsin_period_2, logreg_at_risk_lakes_of_wisconsin_period_3, ncol = 3, widths = c(1.08,1,1.27))
 
 
 ```
