@@ -21,7 +21,7 @@ compute_quantile <- function(x, q, reps = 1000) {
 fig2_data = future_data
 
 
-fig2_data$prob <- predictions_1
+fig2_data$prob <- predictions_1$`1`
 
 
 

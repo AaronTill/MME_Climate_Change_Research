@@ -10,9 +10,16 @@ library(spdep)
 historical_data = read_csv('../processed-data/historical_data.csv')
 
 
-fig_SI4_data <- left_join(historical_data, snow_data, by = c('year' = 'Year', 'month' = 'Month')) %>%
-  mutate(mme = ifelse(mme == 1, 1, 0)) %>%
-  mutate(winterkill = ifelse(winterkill == 1, 1, 0)) 
+snow_data = read_csv('../processed-data/snow_data.csv')
+
+snow_data$month = tolower(snow_data$Month)
+snow_data$year = snow_data$Year
+
+fig_SI4_data <- historical_data %>% 
+  filter(month == 'jan' | month == 'feb' | month == 'dec') %>%
+  inner_join(snow_data, by = c('year', 'month')) %>%
+  mutate(mme_binary = ifelse(is.na(mme), 0, mme), 
+         winterkill_binary = ifelse(is.na(winterkill), 0 , winterkill))
 
 
 
@@ -22,7 +29,6 @@ fig_SI4_data$sig_ice <- ifelse(fig_SI4_data$winterkill == 1, 'p>.05', 'p>.05')
 fig_SI4_data$sig_ice <- factor(fig_SI4_data$sig_ice, levels = c('p>.05', 'p<.05'))
 
 boxplot <- fig_SI4_data %>%
-  filter(month == 'jan' | month == 'feb' | month == 'dec') %>%
   filter(winterkill == 1 | mme == 0 ) %>%
   ggplot(aes(y =Snow,x = factor(winterkill))) +
   theme_tufte() +
