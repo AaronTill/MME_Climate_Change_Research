@@ -6,7 +6,9 @@ library(scales)
 library(car)
 library(DescTools)
 library(spdep)
-
+library(readxl)
+library(readr)
+library(dplyr)
 library(purrr)
 
 
@@ -31,6 +33,7 @@ fig_SI5_data %>%
   summarise(Depth = mean(as.numeric(OFFICIAL_MAX_DEPTH_VALUE)), Dieoffs = sum(MME))%>%
   mutate(Dieoffs = ifelse(Dieoffs >= 4, '4+', Dieoffs)) %>%
   ggplot(aes(x=Dieoffs, y = Depth, colour = Dieoffs)) +
-  geom_boxplot(aes(group = Dieoffs))+
+  ylim(0,110) +
+  geom_boxplot(aes(group = Dieoffs), outlier.alpha = 0.1)+
   guides(colour = FALSE)+
   theme_tufte()
