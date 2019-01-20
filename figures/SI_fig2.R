@@ -33,3 +33,12 @@ boxplot <- fig_SI1_data %>%
   scale_fill_manual(values = c('grey', 'gold'), guide = guide_legend(title = NULL))
 
 boxplot
+
+
+
+
+#### TEST ####
+
+
+
+DunnettTest(mean_surf_z ~ factor(cause.category.4), data = fig_SI1_data, control = 'Human Perturbation')

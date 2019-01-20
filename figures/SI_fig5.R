@@ -37,3 +37,18 @@ fig_SI5_data %>%
   geom_boxplot(aes(group = Dieoffs), outlier.alpha = 0.1)+
   guides(colour = FALSE)+
   theme_tufte()
+
+
+
+####TEST######
+
+
+anova_depth <- aov(Depth ~ factor(MME), fig_SI5_data %>%
+                     filter(!is.na(OFFICIAL_MAX_DEPTH_VALUE)) %>%
+                     filter(!is.na(MME)) %>%
+                     group_by(WBIC) %>%
+                     summarise(Depth = mean(as.numeric(OFFICIAL_MAX_DEPTH_VALUE)), MME = max(MME)))
+summary(anova_depth)
+tuk <- TukeyHSD(anova_depth)
+tuk
+
