@@ -30,7 +30,7 @@ boxplot_a <- fig1a_data %>%
   theme(text = element_text(size=13),
         axis.text = element_text(size=13),
         legend.justification = c(1, -0.4), 
-        legend.position = c(0.25, 0.15),
+        legend.position = c(0.4, 0),
         legend.box.margin=margin(c(50,50,50,50)),
         axis.line = element_line(colour = "black", 
                                  size = 0.5, linetype = "solid"),
@@ -91,7 +91,7 @@ boxplot_b <- fig1b_data%>%
   geom_boxplot(outlier.alpha = 0.1, aes(fill = sig))+ 
   guides(fill = FALSE)+ 
   ggtitle('b') +
-  scale_fill_manual(values = c('grey', 'gold'))
+  scale_fill_manual(values = c('grey', 'grey'))
 
 boxplot_d <- fig1b_data %>%
   filter(month == 'dec' | month == 'jan' | month == 'feb' | month == 'mar') %>%
@@ -111,7 +111,7 @@ boxplot_d <- fig1b_data %>%
   scale_fill_brewer()+ 
   guides(fill = FALSE)+ 
   ggtitle('d') +
-  scale_fill_manual(values = c('grey', 'gold'))
+  scale_fill_manual(values = c('grey', 'grey'))
 
 
 
