@@ -122,3 +122,21 @@ ybox <- grid.arrange(boxplot_c,boxplot_d, ncol = 2, widths = c(6, 3.6))
 grid.arrange(xbox, ybox)
 
 
+ttest_data_d = fig1b_data %>% 
+  filter(month == 'dec' | month == 'jan' | month == 'feb' | month == 'mar') %>%
+  mutate(winterkill = ifelse(cause.category.4 == 'Winterkill', 1, 0))
+
+ttest_1d  = t.test(mean_surf_z ~ winterkill, data = ttest_data_d)
+ttest_1d
+
+
+anova_data = fig1a_data %>% filter(month %in% c('jan', 'feb', 'dec', 'mar')) %>% filter(mme == 0 | cause.category.4 == 'Winterkill')
+anova <- aov(mean_surf ~ factor(mme), anova_data)
+summary(anova)
+tuk <- TukeyHSD(anova)
+tuk
+
+
+
+
+

@@ -1,3 +1,8 @@
+library(ggmap)
+library(dplyr)
+library(rgdal)
+library(spdep)
+library(gridExtra)
 
 dsn2 <- "../data/wisconsin_outline"
 ogrListLayers(dsn2)
@@ -22,7 +27,7 @@ future_data = read_csv('../processed-data/future_data.csv')
 
 
 fig3a_data <-historical_data %>%
-  mutate(summerkill_binary = ifelse(is.na(summerkill) | summerkill == 0, 0 , 1)) %>%
+  mutate(summerkill_binary = ifelse(is.na(summerkill) | summerkill == 'neg', 0 , 1)) %>%
   group_by(wbic) %>%
   summarise(MME = max(summerkill_binary), V1 = mean(lon), V2 = mean(lat))
 
@@ -53,7 +58,7 @@ map1
 fig3b_data <- future_data %>%
   dplyr::select(wbic, lat, lon, year) %>%
   bind_cols(predictions_1)%>%
-  mutate(event = `1`) %>%
+  mutate(event = pos) %>%
   mutate(no_event_prob = 1 - event) %>%
   filter(year > 2030 & year < 2070) %>%
   group_by(wbic) %>%
@@ -63,7 +68,7 @@ fig3b_data <- future_data %>%
 fig3c_data <- future_data %>%
   dplyr::select(wbic, lat, lon, year) %>%
   bind_cols(predictions_1)%>%
-  mutate(event = `1`) %>%
+  mutate(event = pos) %>%
   mutate(no_event_prob = 1 - event) %>%
   filter(year > 2070) %>%
   group_by(wbic) %>%
@@ -122,4 +127,37 @@ map3 <- ggmap(Wisconsin_map) +
 grid.arrange(map1,map2, map3, ncol = 3,  widths = c(1.08,1,1.27))
 
 
+
+
+### TESTS ###
+
+
+
+coordinates(fig3a_data) <- c('V1', 'V2')
+
+coordinates(fig3b_data) <- c('V1', 'V2')
+
+coordinates(fig3c_data) <- c('V1', 'V2')
+
+
+nb_p1 <- knn2nb(knearneigh(coordinates(coordinates(fig3a_data)),longlat = TRUE, k = 2))
+nb_p2 <- knn2nb(knearneigh(coordinates(coordinates(fig3b_data)),longlat = TRUE, k = 2))
+nb_p3 <- knn2nb(knearneigh(coordinates(coordinates(fig3c_data)),longlat = TRUE, k = 2))
+
+
+
+weights_p1 <- nb2listw(nb_p1)
+weights_p2 <- nb2listw(nb_p2)
+weights_p3 <- nb2listw(nb_p3)
+
+
+
+moran_MME <- moran.test(fig3a_data$MME, weights_p1)
+moran_Prob2 <- moran.test(fig3b_data$prob, weights_p2)
+moran_Prob3 <- moran.test(fig3c_data$prob, weights_p3)
+
+
+moran_MME
+moran_Prob2
+moran_Prob3
 

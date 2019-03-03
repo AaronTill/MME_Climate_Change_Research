@@ -22,11 +22,11 @@ MME_data <- read_csv("data/Fish Kill Data Updated 10_24_2018.csv") %>%
   mutate(Month = Investigation.Start.Month) %>%
   dplyr::select(-contains('Investigation.Start.Month'))
 
-fig_SI5_data <- Wi_Lakes_Maps %>% left_join(MME_data, By = WBIC) %>% mutate(MME = ifelse(is.na(Investigation.Start.Date), 0, 1))
+fig_SI6_data <- Wi_Lakes_Maps %>% left_join(MME_data, By = WBIC) %>% mutate(MME = ifelse(is.na(Investigation.Start.Date), 0, 1))
 
 
 
-fig_SI5_data %>%
+fig_SI6_data %>%
   filter(!is.na(OFFICIAL_MAX_DEPTH_VALUE)) %>%
   filter(!is.na(MME)) %>%
   group_by(WBIC) %>%

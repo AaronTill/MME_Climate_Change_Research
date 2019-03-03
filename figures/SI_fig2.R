@@ -10,12 +10,14 @@ library(spdep)
 historical_data = read_csv('../processed-data/historical_data.csv')
 
 
+
 fig_SI1_data <- historical_data %>%
   mutate(cause.category.4 = replace(as.character(cause.category.4), which(cause.category.4 == 'ANTHROPOGENIC CONDITION'), 'Human Perturbation')) %>%
   mutate(cause.category.4 =  replace(as.character(cause.category.4), which(cause.category.4 == 'WINTERKILL'), 'Winterkill'))%>%
   mutate(cause.category.4 =  replace(as.character(cause.category.4), which(cause.category.4 == 'INFECTIOUS AGENT'), 'Infectious Agent'))
 
 fig_SI1_data$sig_all <- ifelse(fig_SI1_data$cause.category.4 == 'Winterkill', 'p<.05', 'p>.05')
+
 fig_SI1_data$sig_all <- factor(fig_SI1_data$sig_all, levels = c('p>.05', 'p<.05'))
 
 boxplot <- fig_SI1_data %>%
@@ -42,3 +44,23 @@ boxplot
 
 
 DunnettTest(mean_surf_z ~ factor(cause.category.4), data = fig_SI1_data, control = 'Human Perturbation')
+
+
+
+ttest_data_z = filter(fig_SI1_data, cause.category.4 == 'Winterkill' & month %in% c('jan', 'feb', 'dec'))
+t.test(ttest_data_z$mean_surf, mu = 0)
+
+
+anova_data = fig_SI1_data %>% filter(month %in% c('jan', 'feb', 'dec', 'mar')) %>% filter(mme == 0 | cause.category.4 == 'Winterkill')
+anova <- aov(mean_surf ~ factor(mme), anova_data)
+summary(anova)
+tuk <- TukeyHSD(anova)
+tuk
+
+ttest_data_z = filter(fig_SI1_data, cause.category.4 == 'Winterkill')
+t.test(ttest_data_z$mean_surf_z, mu = 0)
+
+
+
+
+
